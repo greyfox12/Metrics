@@ -44,7 +44,7 @@ func TestCounterPage(t *testing.T) {
 			name: "Error no metric test #3",
 			send: "/update/counter/test",
 			want: want{
-				code:        404,
+				code:        400,
 				response:    `{"status":"Bad Request"}`,
 				contentType: "text/plain",
 			},
