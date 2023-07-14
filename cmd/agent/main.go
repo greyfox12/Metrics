@@ -1,16 +1,19 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"math/rand"
 	"runtime"
+	"strings"
 	"time"
 )
 
-const (
-	ServerAdr      = "http://localhost:8080"
-	pollInterval   = 2
-	reportInterval = 10
-)
+//const (
+//	ServerAdr      = "http://localhost:8080"
+//	pollInterval   = 2
+//	reportInterval = 10
+//)
 
 type counter int64
 type gauge float64
@@ -26,7 +29,42 @@ type GaugeMetric struct {
 var ListCounter map[int]CounterMetric
 var ListGauge map[int]GaugeMetric
 
+// ///////////
+type NetAddress string
+
+func (o *NetAddress) Set(flagValue string) error {
+	fmt.Printf("flagValue=%s\n", flagValue)
+
+	if !strings.HasPrefix(flagValue, "http://") {
+		*o = NetAddress("http://" + flagValue)
+	}
+	return nil
+
+}
+
+func (o *NetAddress) String() string {
+	fmt.Printf("flag\n")
+	if *o == "" {
+		*o = "http://localhost:8080"
+	}
+	return string(*o)
+}
+
+//////////////
+
 func main() {
+	ServerAdr := new(NetAddress) // {"http://localhost:8080"}
+	_ = flag.Value(ServerAdr)
+
+	// проверка реализации
+	flag.Var(ServerAdr, "a", "Net address host:port")
+
+	//	ServerAdr := flag.String("a", "http://localhost:8080", "Endpoint server IP address host:port")
+	pollInterval := flag.Int("p", 2, "Pool interval sec.")
+	reportInterval := flag.Int("r", 10, "Report interval sec.")
+	flag.Parse()
+
+	fmt.Printf("ServerAdr = %v\n", *ServerAdr)
 
 	var m runtime.MemStats
 	PollCount := counter(0) //Счетчик циклов опроса
@@ -34,7 +72,7 @@ func main() {
 	ListGauge = make(map[int]GaugeMetric)
 	ListCounter = make(map[int]CounterMetric)
 
-	client := NewClient(ServerAdr)
+	client := NewClient(string(*ServerAdr))
 
 	for {
 		runtime.ReadMemStats(&m)
@@ -67,12 +105,13 @@ func main() {
 
 		ListCounter[1] = CounterMetric{"PollCount", counter(PollCount)}
 
-		if PollCount%(reportInterval/pollInterval) == 0 {
+		if int(PollCount)%(*reportInterval / *pollInterval) == 0 {
 			_ = client.PostCounter(ListGauge, ListCounter)
 		}
 
-		time.Sleep(pollInterval * time.Second)
+		time.Sleep(time.Duration(*pollInterval) * time.Second)
 
 		PollCount++
 	}
+
 }
