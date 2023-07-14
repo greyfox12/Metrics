@@ -4,23 +4,27 @@ import (
 	"flag"
 	"fmt"
 	"math/rand"
+	"os"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 )
 
-//const (
-//	ServerAdr      = "http://localhost:8080"
-//	pollInterval   = 2
-//	reportInterval = 10
-//)
+const (
+	DefServerAdr      = "http://localhost:8080"
+	DefPollInterval   = 2
+	DefReportInterval = 10
+)
 
 type counter int64
 type gauge float64
+
 type CounterMetric struct {
 	name string
 	Val  counter
 }
+
 type GaugeMetric struct {
 	name string
 	Val  gauge
@@ -30,6 +34,7 @@ var ListCounter map[int]CounterMetric
 var ListGauge map[int]GaugeMetric
 
 // ///////////
+
 type NetAddress string
 
 func (o *NetAddress) Set(flagValue string) error {
@@ -43,27 +48,54 @@ func (o *NetAddress) Set(flagValue string) error {
 }
 
 func (o *NetAddress) String() string {
-	fmt.Printf("flag\n")
-	if *o == "" {
-		*o = "http://localhost:8080"
-	}
+
 	return string(*o)
 }
 
 //////////////
 
+type Config struct {
+	address        string
+	reportInterval int
+	pollInterval   int
+}
+
 func main() {
+	// Читаю окружение
+	var cfg Config
+	cfg.address, _ = os.LookupEnv("ADDRESS")
+	tmp, _ := os.LookupEnv("REPORT_INTERVAL")
+	cfg.reportInterval, _ = strconv.Atoi(tmp)
+	tmp, _ = os.LookupEnv("POLL_INTERVAL")
+	cfg.pollInterval, _ = strconv.Atoi(tmp)
+	fmt.Printf("cfg.address=%s", cfg.address)
+
+	if cfg.pollInterval == 0 {
+		cfg.pollInterval = DefPollInterval
+	}
+	if cfg.reportInterval == 0 {
+		cfg.reportInterval = DefReportInterval
+	}
+	if cfg.address != "" && !strings.HasPrefix(cfg.address, "http://") {
+		cfg.address = "http://" + cfg.address
+	}
+	if cfg.address == "" {
+		cfg.address = DefServerAdr
+	}
+
 	ServerAdr := new(NetAddress) // {"http://localhost:8080"}
 	_ = flag.Value(ServerAdr)
 
 	// проверка реализации
 	flag.Var(ServerAdr, "a", "Net address host:port")
 
-	//	ServerAdr := flag.String("a", "http://localhost:8080", "Endpoint server IP address host:port")
-	pollInterval := flag.Int("p", 2, "Pool interval sec.")
-	reportInterval := flag.Int("r", 10, "Report interval sec.")
+	pollInterval := flag.Int("p", cfg.pollInterval, "Pool interval sec.")
+	reportInterval := flag.Int("r", cfg.reportInterval, "Report interval sec.")
 	flag.Parse()
 
+	if *ServerAdr == "" {
+		ServerAdr = (*NetAddress)(&cfg.address)
+	}
 	fmt.Printf("ServerAdr = %v\n", *ServerAdr)
 
 	var m runtime.MemStats
