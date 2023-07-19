@@ -59,8 +59,6 @@ func Param() TConfig {
 		}
 	}
 
-	//	fmt.Printf("cfg.Address=%s", cfg.Address)
-
 	if cfg.PollInterval == 0 {
 		cfg.PollInterval = DefPollInterval
 	}

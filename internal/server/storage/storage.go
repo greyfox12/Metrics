@@ -32,8 +32,6 @@ func (m *MetricCounter) Get(key string) (int64, error) {
 }
 
 func (m *MetricCounter) Init(defLen int) {
-	//	m.Mutex.RLock()
-	//	defer m.Mutex.RUnlock()
 	m.Val = make(map[string]int64, defLen)
 }
 
@@ -96,11 +94,8 @@ func (g *GaugeCounter) Len() int {
 }
 
 func (g *GaugeCounter) Init(defLen int) {
-	//	g.Mutex.Lock()
-	//	defer g.Mutex.Unlock()
 
 	g.Val = make(map[string]float64, defLen)
-	//	g.Mutex
 }
 
 func (g *GaugeCounter) Keylist() []string {

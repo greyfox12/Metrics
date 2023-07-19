@@ -30,7 +30,6 @@ func NewClient(url string) Client {
 
 func (c Client) PostCounter(ga map[int]GaugeMetric, co map[int]CounterMetric) error {
 	fmt.Printf("Time: %v\n", time.Now().Unix())
-	//	fmt.Printf("URL: %v\n", c.url)
 
 	for _, val := range ga {
 		s := fmt.Sprintf("%s/update/gauge/%s/%v", c.url, val.Name, val.Val)
