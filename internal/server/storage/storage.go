@@ -8,7 +8,7 @@ import (
 
 type MetricCounter struct {
 	Val   map[string]int64
-	Mutex sync.RWMutex
+	Mutex *sync.RWMutex
 }
 
 func (m MetricCounter) Set(key string, v int64) {
@@ -50,7 +50,7 @@ func (m MetricCounter) Keylist() []string {
 	m.Mutex.RLock()
 	defer m.Mutex.RUnlock()
 
-	for key, _ := range m.Val {
+	for key := range m.Val {
 		ret = append(ret, key)
 	}
 
@@ -107,7 +107,7 @@ func (g GaugeCounter) Keylist() []string {
 	g.Mutex.RLock()
 	defer g.Mutex.RUnlock()
 
-	for key, _ := range g.Val {
+	for key := range g.Val {
 		ret = append(ret, key)
 	}
 
