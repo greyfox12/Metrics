@@ -8,10 +8,10 @@ import (
 
 type MetricCounter struct {
 	Val   map[string]int64
-	Mutex *sync.RWMutex
+	Mutex sync.RWMutex
 }
 
-func (m MetricCounter) Set(key string, v int64) {
+func (m *MetricCounter) Set(key string, v int64) {
 	m.Mutex.Lock()
 
 	defer m.Mutex.Unlock()
@@ -19,7 +19,7 @@ func (m MetricCounter) Set(key string, v int64) {
 	m.Val[key] += v
 }
 
-func (m MetricCounter) Get(key string) (int64, error) {
+func (m *MetricCounter) Get(key string) (int64, error) {
 	m.Mutex.RLock()
 
 	defer m.Mutex.RUnlock()
@@ -32,12 +32,12 @@ func (m MetricCounter) Get(key string) (int64, error) {
 }
 
 func (m *MetricCounter) Init(defLen int) {
-	m.Mutex.RLock()
-	defer m.Mutex.RUnlock()
+	//	m.Mutex.RLock()
+	//	defer m.Mutex.RUnlock()
 	m.Val = make(map[string]int64, defLen)
 }
 
-func (m MetricCounter) Len() int {
+func (m *MetricCounter) Len() int {
 	m.Mutex.RLock()
 
 	defer m.Mutex.RUnlock()
@@ -45,7 +45,7 @@ func (m MetricCounter) Len() int {
 	return len(m.Val)
 }
 
-func (m MetricCounter) Keylist() []string {
+func (m *MetricCounter) Keylist() []string {
 	var ret []string
 	m.Mutex.RLock()
 	defer m.Mutex.RUnlock()
@@ -64,10 +64,10 @@ func (m MetricCounter) Keylist() []string {
 // ///////////////////////////////
 type GaugeCounter struct {
 	Val   map[string]float64
-	Mutex *sync.RWMutex
+	Mutex sync.RWMutex
 }
 
-func (g GaugeCounter) Set(key string, v float64) {
+func (g *GaugeCounter) Set(key string, v float64) {
 	g.Mutex.Lock()
 
 	defer g.Mutex.Unlock()
@@ -75,7 +75,7 @@ func (g GaugeCounter) Set(key string, v float64) {
 	g.Val[key] = v
 }
 
-func (g GaugeCounter) Get(key string) (float64, error) {
+func (g *GaugeCounter) Get(key string) (float64, error) {
 	g.Mutex.RLock()
 
 	defer g.Mutex.RUnlock()
@@ -87,7 +87,7 @@ func (g GaugeCounter) Get(key string) (float64, error) {
 	return 0, errors.New("not found")
 }
 
-func (g GaugeCounter) Len() int {
+func (g *GaugeCounter) Len() int {
 	g.Mutex.RLock()
 
 	defer g.Mutex.RUnlock()
@@ -96,11 +96,20 @@ func (g GaugeCounter) Len() int {
 }
 
 func (g *GaugeCounter) Init(defLen int) {
-	g.Mutex.RLock()
-	defer g.Mutex.RUnlock()
+	//	g.Mutex.Lock()
+	//	defer g.Mutex.Unlock()
 
 	g.Val = make(map[string]float64, defLen)
+	//	g.Mutex
 }
+
+/*func Init(defLen int) *GaugeCounter {
+	return &GaugeCounter{
+		Val: make(map[string]float64, defLen)}
+	//	g.Mutex.Lock()
+	//	defer g.Mutex.Unlock()
+
+}*/
 
 func (g GaugeCounter) Keylist() []string {
 	var ret []string
