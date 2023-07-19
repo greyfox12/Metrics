@@ -64,7 +64,7 @@ func (m MetricCounter) Keylist() []string {
 // ///////////////////////////////
 type GaugeCounter struct {
 	Val   map[string]float64
-	Mutex sync.RWMutex
+	Mutex *sync.RWMutex
 }
 
 func (g GaugeCounter) Set(key string, v float64) {
