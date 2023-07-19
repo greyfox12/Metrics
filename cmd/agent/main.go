@@ -1,147 +1,77 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"math/rand"
-	"os"
 	"runtime"
-	"strconv"
-	"strings"
 	"time"
+
+	"github.com/greyfox12/Metrics/internal/agent/getparam"
+	"github.com/greyfox12/Metrics/internal/agent/post"
 )
-
-const (
-	DefServerAdr      = "http://localhost:8080"
-	DefPollInterval   = 2
-	DefReportInterval = 10
-)
-
-type counter int64
-type gauge float64
-
-type CounterMetric struct {
-	name string
-	Val  counter
-}
-
-type GaugeMetric struct {
-	name string
-	Val  gauge
-}
-
-var ListCounter map[int]CounterMetric
-var ListGauge map[int]GaugeMetric
-
-// ///////////
-
-type NetAddress string
-
-func (o *NetAddress) Set(flagValue string) error {
-	fmt.Printf("flagValue=%s\n", flagValue)
-
-	if !strings.HasPrefix(flagValue, "http://") {
-		*o = NetAddress("http://" + flagValue)
-	}
-	return nil
-
-}
-
-func (o *NetAddress) String() string {
-
-	return string(*o)
-}
-
-//////////////
-
-type Config struct {
-	address        string
-	reportInterval int
-	pollInterval   int
-}
 
 func main() {
-	// Читаю окружение
-	var cfg Config
-	cfg.address, _ = os.LookupEnv("ADDRESS")
-	tmp, _ := os.LookupEnv("REPORT_INTERVAL")
-	cfg.reportInterval, _ = strconv.Atoi(tmp)
-	tmp, _ = os.LookupEnv("POLL_INTERVAL")
-	cfg.pollInterval, _ = strconv.Atoi(tmp)
-	fmt.Printf("cfg.address=%s", cfg.address)
 
-	if cfg.pollInterval == 0 {
-		cfg.pollInterval = DefPollInterval
-	}
-	if cfg.reportInterval == 0 {
-		cfg.reportInterval = DefReportInterval
-	}
-	if cfg.address != "" && !strings.HasPrefix(cfg.address, "http://") {
-		cfg.address = "http://" + cfg.address
-	}
-	if cfg.address == "" {
-		cfg.address = DefServerAdr
+	// Читаю окружение и ключи командной строки
+	Config := getparam.Param()
+	fmt.Printf("ServerAdr = %v\n", Config.Address)
+	fmt.Printf("PollInterval = %v\n", Config.PollInterval)
+	fmt.Printf("ReportInterval = %v\n", Config.ReportInterval)
+
+	if Config.PollInterval > Config.ReportInterval {
+		panic("ReportInterval должен быть больше PollInterval")
 	}
 
-	ServerAdr := new(NetAddress) // {"http://localhost:8080"}
-	_ = flag.Value(ServerAdr)
-
-	// проверка реализации
-	flag.Var(ServerAdr, "a", "Net address host:port")
-
-	pollInterval := flag.Int("p", cfg.pollInterval, "Pool interval sec.")
-	reportInterval := flag.Int("r", cfg.reportInterval, "Report interval sec.")
-	flag.Parse()
-
-	if *ServerAdr == "" {
-		ServerAdr = (*NetAddress)(&cfg.address)
-	}
-	fmt.Printf("ServerAdr = %v\n", *ServerAdr)
+	var ListCounter map[int]post.CounterMetric
+	var ListGauge map[int]post.GaugeMetric
 
 	var m runtime.MemStats
-	PollCount := counter(0) //Счетчик циклов опроса
-	RandomValue := gauge(0)
-	ListGauge = make(map[int]GaugeMetric)
-	ListCounter = make(map[int]CounterMetric)
 
-	client := NewClient(string(*ServerAdr))
+	PollCount := post.Counter(0) //Счетчик циклов опроса
+
+	ListGauge = make(map[int]post.GaugeMetric)
+	ListCounter = make(map[int]post.CounterMetric)
+
+	client := post.NewClient(Config.Address)
 
 	for {
 		runtime.ReadMemStats(&m)
-		RandomValue = gauge(rand.Float64())
-		ListGauge[1] = GaugeMetric{"Alloc", gauge(m.Alloc)}
-		ListGauge[2] = GaugeMetric{"BuckHashSys", gauge(m.BuckHashSys)}
-		ListGauge[3] = GaugeMetric{"Frees", gauge(m.Frees)}
-		ListGauge[4] = GaugeMetric{"GCCPUFraction", gauge(m.GCCPUFraction)}
-		ListGauge[5] = GaugeMetric{"GCSys", gauge(m.GCSys)}
-		ListGauge[6] = GaugeMetric{"HeapAlloc", gauge(m.HeapAlloc)}
-		ListGauge[7] = GaugeMetric{"HeapIdle", gauge(m.HeapIdle)}
-		ListGauge[8] = GaugeMetric{"HeapObjects", gauge(m.HeapObjects)}
-		ListGauge[9] = GaugeMetric{"HeapReleased", gauge(m.HeapReleased)}
-		ListGauge[10] = GaugeMetric{"HeapSys", gauge(m.HeapSys)}
-		ListGauge[11] = GaugeMetric{"LastGC", gauge(m.LastGC)}
-		ListGauge[12] = GaugeMetric{"Lookups", gauge(m.Lookups)}
-		ListGauge[13] = GaugeMetric{"MCacheInuse", gauge(m.MCacheInuse)}
-		ListGauge[14] = GaugeMetric{"MCacheSys", gauge(m.MCacheSys)}
-		ListGauge[15] = GaugeMetric{"Mallocs", gauge(m.Mallocs)}
-		ListGauge[16] = GaugeMetric{"NextGC", gauge(m.NextGC)}
-		ListGauge[17] = GaugeMetric{"NumForcedGC", gauge(m.NumForcedGC)}
-		ListGauge[18] = GaugeMetric{"NumGC", gauge(m.NumGC)}
-		ListGauge[19] = GaugeMetric{"OtherSys", gauge(m.OtherSys)}
-		ListGauge[20] = GaugeMetric{"PauseTotalNs", gauge(m.PauseTotalNs)}
-		ListGauge[21] = GaugeMetric{"StackInuse", gauge(m.StackInuse)}
-		ListGauge[22] = GaugeMetric{"StackSys", gauge(m.StackSys)}
-		ListGauge[23] = GaugeMetric{"Sys", gauge(m.Sys)}
-		ListGauge[24] = GaugeMetric{"TotalAlloc", gauge(m.TotalAlloc)}
-		ListGauge[25] = GaugeMetric{"RandomValue", gauge(RandomValue)}
 
-		ListCounter[1] = CounterMetric{"PollCount", counter(PollCount)}
+		ListGauge[1] = post.GaugeMetric{"Alloc", post.Gauge(m.Alloc)}
+		ListGauge[2] = post.GaugeMetric{"BuckHashSys", post.Gauge(m.BuckHashSys)}
+		ListGauge[3] = post.GaugeMetric{"Frees", post.Gauge(m.Frees)}
+		ListGauge[4] = post.GaugeMetric{"GCCPUFraction", post.Gauge(m.GCCPUFraction)}
+		ListGauge[5] = post.GaugeMetric{"GCSys", post.Gauge(m.GCSys)}
+		ListGauge[6] = post.GaugeMetric{"HeapAlloc", post.Gauge(m.HeapAlloc)}
+		ListGauge[7] = post.GaugeMetric{"HeapIdle", post.Gauge(m.HeapIdle)}
+		ListGauge[8] = post.GaugeMetric{"HeapObjects", post.Gauge(m.HeapObjects)}
+		ListGauge[9] = post.GaugeMetric{"HeapReleased", post.Gauge(m.HeapReleased)}
+		ListGauge[10] = post.GaugeMetric{"HeapSys", post.Gauge(m.HeapSys)}
+		ListGauge[11] = post.GaugeMetric{"LastGC", post.Gauge(m.LastGC)}
+		ListGauge[12] = post.GaugeMetric{"Lookups", post.Gauge(m.Lookups)}
+		ListGauge[13] = post.GaugeMetric{"MCacheInuse", post.Gauge(m.MCacheInuse)}
+		ListGauge[14] = post.GaugeMetric{"MCacheSys", post.Gauge(m.MCacheSys)}
+		ListGauge[15] = post.GaugeMetric{"Mallocs", post.Gauge(m.Mallocs)}
+		ListGauge[16] = post.GaugeMetric{"NextGC", post.Gauge(m.NextGC)}
+		ListGauge[17] = post.GaugeMetric{"NumForcedGC", post.Gauge(m.NumForcedGC)}
+		ListGauge[18] = post.GaugeMetric{"NumGC", post.Gauge(m.NumGC)}
+		ListGauge[19] = post.GaugeMetric{"OtherSys", post.Gauge(m.OtherSys)}
+		ListGauge[20] = post.GaugeMetric{"PauseTotalNs", post.Gauge(m.PauseTotalNs)}
+		ListGauge[21] = post.GaugeMetric{"StackInuse", post.Gauge(m.StackInuse)}
+		ListGauge[22] = post.GaugeMetric{"StackSys", post.Gauge(m.StackSys)}
+		ListGauge[23] = post.GaugeMetric{"Sys", post.Gauge(m.Sys)}
+		ListGauge[24] = post.GaugeMetric{"TotalAlloc", post.Gauge(m.TotalAlloc)}
+		ListGauge[25] = post.GaugeMetric{"RandomValue", post.Gauge(rand.Float64())}
 
-		if int(PollCount)%(*reportInterval / *pollInterval) == 0 {
-			_ = client.PostCounter(ListGauge, ListCounter)
+		ListCounter[1] = post.CounterMetric{"PollCount", post.Counter(PollCount)}
+
+		if int(PollCount)%(Config.ReportInterval/Config.PollInterval) == 0 {
+			if ok := client.PostCounter(ListGauge, ListCounter); ok != nil {
+				fmt.Printf("Error Post metrics: %v\n", ok)
+			}
 		}
 
-		time.Sleep(time.Duration(*pollInterval) * time.Second)
+		time.Sleep(time.Duration(Config.PollInterval) * time.Second)
 
 		PollCount++
 	}

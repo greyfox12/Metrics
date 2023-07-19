@@ -1,7 +1,8 @@
-package main
+package handler
 
 import (
 	//	"fmt"
+	"github.com/greyfox12/Metrics/internal/server/storage"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -68,15 +69,16 @@ func TestGaugePage(t *testing.T) {
 			},
 		},
 	}
-	//	var b bytes.Buffer
+
+	gauge := new(storage.GaugeCounter)
+	gauge.Init(100)
 
 	for _, test := range tests {
-		//		fmt.Printf("%s\n", test.send)
 		t.Run(test.name, func(t *testing.T) {
 			request := httptest.NewRequest(http.MethodPost, test.send, nil)
 			// создаём новый Recorder
 			w := httptest.NewRecorder()
-			GaugePage(w, request)
+			GaugePage(*gauge, 100).ServeHTTP(w, request)
 
 			res := w.Result()
 

@@ -1,7 +1,8 @@
-package main
+package handler
 
 import (
 	//	"fmt"
+	"github.com/greyfox12/Metrics/internal/server/storage"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -68,7 +69,9 @@ func TestCounterPage(t *testing.T) {
 			},
 		},
 	}
-	//	var b bytes.Buffer
+
+	metric := new(storage.MetricCounter)
+	metric.Init(100)
 
 	for _, test := range tests {
 		//		fmt.Printf("%s\n", test.send)
@@ -76,7 +79,9 @@ func TestCounterPage(t *testing.T) {
 			request := httptest.NewRequest(http.MethodPost, test.send, nil)
 			// создаём новый Recorder
 			w := httptest.NewRecorder()
-			CounterPage(w, request)
+			//			CounterPage(w, request)
+
+			CounterPage(*metric, 100).ServeHTTP(w, request)
 
 			res := w.Result()
 

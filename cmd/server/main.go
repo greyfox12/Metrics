@@ -1,51 +1,43 @@
 package main
 
 import (
-	"flag"
-	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/greyfox12/Metrics/internal/server/getparam"
+	"github.com/greyfox12/Metrics/internal/server/handler"
+	"github.com/greyfox12/Metrics/internal/server/storage"
 )
 
-const LenArr = 10000
-const DefServerAdr = "localhost:8080"
-
-type tMetric struct {
-	gauge   map[string]float64
-	counter map[string]int64
-}
-
-var MemMetric tMetric
+const (
+	LenArr       = 10000
+	defServerAdr = "localhost:8080"
+)
 
 func main() {
-	var cfg string
-	var ok bool
 
-	if cfg, ok = os.LookupEnv("ADDRESS"); !ok {
-		cfg = DefServerAdr
-	}
+	// запрашиваю параметры ключей-переменных окружения
+	IPAddress := getparam.Param(defServerAdr)
 
-	fmt.Printf("ServerAdr = %v\n", cfg)
-
-	IPAddress := flag.String("a", cfg, "Endpoint server IP address host:port")
-	flag.Parse()
+	gauge := new(storage.GaugeCounter)
+	gauge.Init(LenArr)
+	metric := new(storage.MetricCounter)
+	metric.Init(LenArr)
 
 	r := chi.NewRouter()
 
 	// определяем хендлер, который выводит определённую машину
 	r.Route("/", func(r chi.Router) {
-		r.Get("/", ListMetricPage)
-		r.Get("/value/gauge/{metricName}", OneMetricPage)
-		r.Get("/value/counter/{metricName}", OneMetricPage)
+		r.Get("/", handler.ListMetricPage(*gauge, *metric))
+		r.Get("/value/gauge/{metricName}", handler.OneMetricPage(*gauge, *metric))
+		r.Get("/value/counter/{metricName}", handler.OneMetricPage(*gauge, *metric))
 		r.Route("/update", func(r chi.Router) {
-			r.Post("/gauge/{metricName}/{metricVal}", GaugePage)
-			r.Post("/counter/{metricName}/{metricVal}", CounterPage)
-			r.Post("/*", ErrorPage)
+			r.Post("/gauge/{metricName}/{metricVal}", handler.GaugePage(*gauge, LenArr))
+			r.Post("/counter/{metricName}/{metricVal}", handler.CounterPage(*metric, LenArr))
+			r.Post("/*", handler.ErrorPage)
 		})
 	})
 
-	log.Fatal(http.ListenAndServe(*IPAddress, r))
+	log.Fatal(http.ListenAndServe(IPAddress, r))
 }
