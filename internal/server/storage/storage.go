@@ -103,15 +103,7 @@ func (g *GaugeCounter) Init(defLen int) {
 	//	g.Mutex
 }
 
-/*func Init(defLen int) *GaugeCounter {
-	return &GaugeCounter{
-		Val: make(map[string]float64, defLen)}
-	//	g.Mutex.Lock()
-	//	defer g.Mutex.Unlock()
-
-}*/
-
-func (g GaugeCounter) Keylist() []string {
+func (g *GaugeCounter) Keylist() []string {
 	var ret []string
 	g.Mutex.RLock()
 	defer g.Mutex.RUnlock()

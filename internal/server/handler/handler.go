@@ -10,7 +10,7 @@ import (
 	"github.com/greyfox12/Metrics/internal/server/storage"
 )
 
-func GaugePage(mgauge storage.GaugeCounter, maxlen int) http.HandlerFunc {
+func GaugePage(mgauge *storage.GaugeCounter, maxlen int) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 
 		if req.Method != http.MethodPost {
@@ -48,7 +48,7 @@ func GaugePage(mgauge storage.GaugeCounter, maxlen int) http.HandlerFunc {
 	}
 }
 
-func CounterPage(mmetric storage.MetricCounter, maxlen int) http.HandlerFunc {
+func CounterPage(mmetric *storage.MetricCounter, maxlen int) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 
 		if req.Method != http.MethodPost {
@@ -101,7 +101,7 @@ func ErrorPage(res http.ResponseWriter, req *http.Request) {
 	res.WriteHeader(http.StatusNotFound)
 }
 
-func ListMetricPage(mgauge storage.GaugeCounter, mmetric storage.MetricCounter) http.HandlerFunc {
+func ListMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 
 		var body []string
@@ -122,7 +122,7 @@ func ListMetricPage(mgauge storage.GaugeCounter, mmetric storage.MetricCounter) 
 	}
 }
 
-func OneMetricPage(mgauge storage.GaugeCounter, mmetric storage.MetricCounter) http.HandlerFunc {
+func OneMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 
 		var Val string

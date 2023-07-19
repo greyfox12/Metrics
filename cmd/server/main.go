@@ -29,12 +29,12 @@ func main() {
 
 	// определяем хендлер, который выводит определённую машину
 	r.Route("/", func(r chi.Router) {
-		r.Get("/", handler.ListMetricPage(*gauge, *metric))
-		r.Get("/value/gauge/{metricName}", handler.OneMetricPage(*gauge, *metric))
-		r.Get("/value/counter/{metricName}", handler.OneMetricPage(*gauge, *metric))
+		r.Get("/", handler.ListMetricPage(gauge, metric))
+		r.Get("/value/gauge/{metricName}", handler.OneMetricPage(gauge, metric))
+		r.Get("/value/counter/{metricName}", handler.OneMetricPage(gauge, metric))
 		r.Route("/update", func(r chi.Router) {
-			r.Post("/gauge/{metricName}/{metricVal}", handler.GaugePage(*gauge, LenArr))
-			r.Post("/counter/{metricName}/{metricVal}", handler.CounterPage(*metric, LenArr))
+			r.Post("/gauge/{metricName}/{metricVal}", handler.GaugePage(gauge, LenArr))
+			r.Post("/counter/{metricName}/{metricVal}", handler.CounterPage(metric, LenArr))
 			r.Post("/*", handler.ErrorPage)
 		})
 	})

@@ -81,7 +81,7 @@ func TestCounterPage(t *testing.T) {
 			w := httptest.NewRecorder()
 			//			CounterPage(w, request)
 
-			CounterPage(*metric, 100).ServeHTTP(w, request)
+			CounterPage(metric, 100).ServeHTTP(w, request)
 
 			res := w.Result()
 
