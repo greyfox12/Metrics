@@ -9,8 +9,10 @@ import (
 )
 
 func TestPostCounter(t *testing.T) {
-	var ListCounter map[int]CounterMetric
-	var ListGauge map[int]GaugeMetric
+	var (
+		ListCounter map[int]CounterMetric
+		ListGauge   map[int]GaugeMetric
+	)
 	ListGauge = make(map[int]GaugeMetric)
 	ListCounter = make(map[int]CounterMetric)
 

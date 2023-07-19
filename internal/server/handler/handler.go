@@ -45,8 +45,6 @@ func GaugePage(mgauge storage.GaugeCounter, maxlen int) http.HandlerFunc {
 
 		// Добавляю новую метрику
 		mgauge.Set(metricName, metricCn)
-
-		return
 	}
 }
 
@@ -84,8 +82,6 @@ func CounterPage(mmetric storage.MetricCounter, maxlen int) http.HandlerFunc {
 
 		// Добавляю новую метрику
 		mmetric.Set(metricName, metricCn)
-
-		return
 	}
 }
 
@@ -103,7 +99,6 @@ func ErrorPage(res http.ResponseWriter, req *http.Request) {
 	}
 
 	res.WriteHeader(http.StatusNotFound)
-	return
 }
 
 func ListMetricPage(mgauge storage.GaugeCounter, mmetric storage.MetricCounter) http.HandlerFunc {
@@ -131,25 +126,25 @@ func OneMetricPage(mgauge storage.GaugeCounter, mmetric storage.MetricCounter) h
 	return func(res http.ResponseWriter, req *http.Request) {
 
 		var Val string
-		var ret_int int64
-		var ret_float float64
+		var retInt int64
+		var retFloat float64
 		var ok error
 		aSt := strings.Split(req.URL.Path, "/")
 
 		metricName := aSt[3]
 		if aSt[2] == "gauge" {
-			if ret_float, ok = mgauge.Get(metricName); ok != nil {
+			if retFloat, ok = mgauge.Get(metricName); ok != nil {
 				res.WriteHeader(http.StatusNotFound)
 				return
 			} else {
-				Val = fmt.Sprintf("%v", ret_float)
+				Val = fmt.Sprintf("%v", retFloat)
 			}
 		} else {
-			if ret_int, ok = mmetric.Get(metricName); ok != nil {
+			if retInt, ok = mmetric.Get(metricName); ok != nil {
 				res.WriteHeader(http.StatusNotFound)
 				return
 			}
-			Val = fmt.Sprintf("%v", ret_int)
+			Val = fmt.Sprintf("%v", retInt)
 		}
 
 		io.WriteString(res, fmt.Sprintf("%v", Val))
