@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "../../go_src"
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {}
+}
