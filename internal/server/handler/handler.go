@@ -14,6 +14,7 @@ import (
 func GaugePage(mgauge *storage.GaugeCounter, maxlen int) http.HandlerFunc {
 	return logmy.RequestLogger(func(res http.ResponseWriter, req *http.Request) {
 
+		//		fmt.Printf("GaugePage \n")
 		if req.Method != http.MethodPost {
 			res.WriteHeader(http.StatusMethodNotAllowed)
 			return
@@ -53,6 +54,7 @@ func GaugePage(mgauge *storage.GaugeCounter, maxlen int) http.HandlerFunc {
 
 func CounterPage(mmetric *storage.MetricCounter, maxlen int) http.HandlerFunc {
 	return logmy.RequestLogger(func(res http.ResponseWriter, req *http.Request) {
+		//		fmt.Printf("CounterPage \n")
 
 		if req.Method != http.MethodPost {
 			res.WriteHeader(http.StatusMethodNotAllowed)
@@ -109,6 +111,7 @@ func ErrorPage(res http.ResponseWriter, req *http.Request) {
 */
 func ErrorPage() http.HandlerFunc {
 	return logmy.RequestLogger(func(res http.ResponseWriter, req *http.Request) {
+		//		fmt.Printf("Error page \n")
 		if req.Method != http.MethodPost {
 			res.WriteHeader(http.StatusMethodNotAllowed)
 			return
@@ -126,6 +129,7 @@ func ErrorPage() http.HandlerFunc {
 
 func ListMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter) http.HandlerFunc {
 	return logmy.RequestLogger(func(res http.ResponseWriter, req *http.Request) {
+		fmt.Printf("ListMetric page \n")
 
 		var body []string
 
@@ -149,6 +153,7 @@ func ListMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter
 func OneMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter) http.HandlerFunc {
 	return logmy.RequestLogger(func(res http.ResponseWriter, req *http.Request) {
 
+		//		fmt.Printf("OneMetricPage \n")
 		var Val string
 		var retInt int64
 		var retFloat float64
