@@ -7,11 +7,12 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/greyfox12/Metrics/internal/server/logmy"
 	"github.com/greyfox12/Metrics/internal/server/storage"
 )
 
 func GaugePage(mgauge *storage.GaugeCounter, maxlen int) http.HandlerFunc {
-	return func(res http.ResponseWriter, req *http.Request) {
+	return logmy.RequestLogger(func(res http.ResponseWriter, req *http.Request) {
 
 		if req.Method != http.MethodPost {
 			res.WriteHeader(http.StatusMethodNotAllowed)
@@ -45,11 +46,13 @@ func GaugePage(mgauge *storage.GaugeCounter, maxlen int) http.HandlerFunc {
 
 		// Добавляю новую метрику
 		mgauge.Set(metricName, metricCn)
-	}
+		res.Write(nil)
+		res.WriteHeader(http.StatusOK)
+	})
 }
 
 func CounterPage(mmetric *storage.MetricCounter, maxlen int) http.HandlerFunc {
-	return func(res http.ResponseWriter, req *http.Request) {
+	return logmy.RequestLogger(func(res http.ResponseWriter, req *http.Request) {
 
 		if req.Method != http.MethodPost {
 			res.WriteHeader(http.StatusMethodNotAllowed)
@@ -82,27 +85,47 @@ func CounterPage(mmetric *storage.MetricCounter, maxlen int) http.HandlerFunc {
 
 		// Добавляю новую метрику
 		mmetric.Set(metricName, metricCn)
-	}
+		res.Write(nil)
+		res.WriteHeader(http.StatusOK)
+	})
 }
 
+/*
 func ErrorPage(res http.ResponseWriter, req *http.Request) {
-	//	fmt.Printf("req.Method3=%v\n", req.Method)
-	if req.Method != http.MethodPost {
-		res.WriteHeader(http.StatusMethodNotAllowed)
-		return
-	}
 
-	aSt := strings.Split(req.URL.Path, "/")
-	if aSt[1] == "update" && aSt[2] != "counter" && aSt[2] != "gauge" {
-		res.WriteHeader(http.StatusBadRequest)
-		return
-	}
+		if req.Method != http.MethodPost {
+			res.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
 
-	res.WriteHeader(http.StatusNotFound)
+		aSt := strings.Split(req.URL.Path, "/")
+		if aSt[1] == "update" && aSt[2] != "counter" && aSt[2] != "gauge" {
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		res.WriteHeader(http.StatusNotFound)
+	}
+*/
+func ErrorPage() http.HandlerFunc {
+	return logmy.RequestLogger(func(res http.ResponseWriter, req *http.Request) {
+		if req.Method != http.MethodPost {
+			res.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
+
+		aSt := strings.Split(req.URL.Path, "/")
+		if aSt[1] == "update" && aSt[2] != "counter" && aSt[2] != "gauge" {
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		res.WriteHeader(http.StatusNotFound)
+	})
 }
 
 func ListMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter) http.HandlerFunc {
-	return func(res http.ResponseWriter, req *http.Request) {
+	return logmy.RequestLogger(func(res http.ResponseWriter, req *http.Request) {
 
 		var body []string
 
@@ -119,11 +142,12 @@ func ListMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter
 		}
 
 		io.WriteString(res, strings.Join(body, "\n"))
-	}
+		res.WriteHeader(http.StatusOK)
+	})
 }
 
 func OneMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter) http.HandlerFunc {
-	return func(res http.ResponseWriter, req *http.Request) {
+	return logmy.RequestLogger(func(res http.ResponseWriter, req *http.Request) {
 
 		var Val string
 		var retInt int64
@@ -148,5 +172,6 @@ func OneMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter)
 		}
 
 		io.WriteString(res, fmt.Sprintf("%v", Val))
-	}
+		res.WriteHeader(http.StatusOK)
+	})
 }
