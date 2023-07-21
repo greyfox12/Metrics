@@ -180,3 +180,4 @@
 {"level":"info","ts":1689940819.3478544,"caller":"logmy/logmy.go:82","msg":"got incoming HTTP request","method":"POST","path":"/update/gauge/testGauge/100","duration":0,"size":0,"status":200}
 {"level":"info","ts":1689940828.7248664,"caller":"logmy/logmy.go:82","msg":"got incoming HTTP request","method":"POST","path":"/update/counter/testGauge/100","duration":0.0185987,"size":0,"status":200}
 {"level":"info","ts":1689940848.451025,"caller":"logmy/logmy.go:82","msg":"got incoming HTTP request","method":"POST","path":"/update/counter/testGauge/100","duration":0,"size":0,"status":200}
+{"level":"info","ts":1689941308.794469,"caller":"logmy/logmy.go:82","msg":"got incoming HTTP request","method":"POST","path":"/updater/counter/testCounter/100","duration":0.0007248,"size":0,"status":404}

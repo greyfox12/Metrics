@@ -93,26 +93,9 @@ func CounterPage(mmetric *storage.MetricCounter, maxlen int) http.HandlerFunc {
 	})
 }
 
-/*
-func ErrorPage(res http.ResponseWriter, req *http.Request) {
-
-		if req.Method != http.MethodPost {
-			res.WriteHeader(http.StatusMethodNotAllowed)
-			return
-		}
-
-		aSt := strings.Split(req.URL.Path, "/")
-		if aSt[1] == "update" && aSt[2] != "counter" && aSt[2] != "gauge" {
-			res.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		res.WriteHeader(http.StatusNotFound)
-	}
-*/
 func ErrorPage() http.HandlerFunc {
 	return logmy.RequestLogger(func(res http.ResponseWriter, req *http.Request) {
-		//		fmt.Printf("Error page \n")
+		//		fmt.Printf("Error page %v\n", http.MethodPost)
 		if req.Method != http.MethodPost {
 			res.WriteHeader(http.StatusMethodNotAllowed)
 			return
