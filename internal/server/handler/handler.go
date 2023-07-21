@@ -47,8 +47,9 @@ func GaugePage(mgauge *storage.GaugeCounter, maxlen int) http.HandlerFunc {
 
 		// Добавляю новую метрику
 		mgauge.Set(metricName, metricCn)
-		res.Write(nil)
+
 		res.WriteHeader(http.StatusOK)
+		res.Write(nil)
 	})
 }
 
@@ -87,8 +88,8 @@ func CounterPage(mmetric *storage.MetricCounter, maxlen int) http.HandlerFunc {
 
 		// Добавляю новую метрику
 		mmetric.Set(metricName, metricCn)
-		res.Write(nil)
 		res.WriteHeader(http.StatusOK)
+		res.Write(nil)
 	})
 }
 
