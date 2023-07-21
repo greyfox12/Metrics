@@ -176,7 +176,8 @@ func OneMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter)
 			Val = fmt.Sprintf("%v", retInt)
 		}
 
-		io.WriteString(res, fmt.Sprintf("%v", Val))
 		res.WriteHeader(http.StatusOK)
+		io.WriteString(res, fmt.Sprintf("%v", Val))
+
 	})
 }
