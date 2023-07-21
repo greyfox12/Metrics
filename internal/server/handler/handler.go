@@ -129,7 +129,7 @@ func ErrorPage() http.HandlerFunc {
 
 func ListMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter) http.HandlerFunc {
 	return logmy.RequestLogger(func(res http.ResponseWriter, req *http.Request) {
-		fmt.Printf("ListMetric page \n")
+		//		fmt.Printf("ListMetric page \n")
 
 		var body []string
 
@@ -144,9 +144,9 @@ func ListMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter
 				body = append(body, fmt.Sprintf("%s = %v", val, v))
 			}
 		}
+		res.WriteHeader(http.StatusOK)
 
 		io.WriteString(res, strings.Join(body, "\n"))
-		res.WriteHeader(http.StatusOK)
 	})
 }
 
