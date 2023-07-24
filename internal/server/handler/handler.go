@@ -96,8 +96,8 @@ func PostPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, maxl
 			return
 
 		}
-		res.WriteHeader(http.StatusOK)
 		res.Header().Set("Content-Type", "application/json")
+		res.WriteHeader(http.StatusOK)
 		res.Write([]byte(jsonData))
 	})
 }
@@ -307,8 +307,8 @@ func OnePostMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCoun
 			return
 
 		}
-		res.WriteHeader(http.StatusOK)
 		res.Header().Set("Content-Type", "application/json")
+		res.WriteHeader(http.StatusOK)
 		res.Write([]byte(jsonData))
 	})
 }
