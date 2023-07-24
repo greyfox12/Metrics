@@ -1,95 +1,88 @@
 package handler
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/greyfox12/Metrics/internal/server/logmy"
 	"github.com/greyfox12/Metrics/internal/server/storage"
 )
 
-func GaugePage(mgauge *storage.GaugeCounter, maxlen int) http.HandlerFunc {
+type Metrics struct {
+	ID    string   `json:"id"`              // имя метрики
+	MType string   `json:"type"`            // параметр, принимающий значение gauge или counter
+	Delta *int64   `json:"delta,omitempty"` // значение метрики в случае передачи counter
+	Value *float64 `json:"value,omitempty"` // значение метрики в случае передачи gauge
+}
+
+func GaugePage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, maxlen int) http.HandlerFunc {
 	return logmy.RequestLogger(func(res http.ResponseWriter, req *http.Request) {
 
 		//		fmt.Printf("GaugePage \n")
+		var vMetrics Metrics
 		if req.Method != http.MethodPost {
 			res.WriteHeader(http.StatusMethodNotAllowed)
 			return
 		}
 
-		aSt := strings.Split(req.URL.Path, "/")
+		decoder := json.NewDecoder(req.Body)
 
-		if len(aSt) != 5 || aSt[1] != "update" || aSt[2] != "gauge" {
+		if err := decoder.Decode(&vMetrics); err != nil {
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		//		fmt.Printf("vMetrics: %v \n", vMetrics)
+
+		if vMetrics.ID == "" || (vMetrics.MType != "gauge" && vMetrics.MType != "counter") || len(vMetrics.ID) > 100 {
 			res.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
-		metricName := aSt[3]
-		metricVal := aSt[4]
-		if metricName == "" || metricVal == "" || len(metricName) > 100 {
-			res.WriteHeader(http.StatusBadRequest)
-			return
+		if vMetrics.MType == "gauge" {
+			// контроль длинны карты
+			if _, ok := mgauge.Get(vMetrics.ID); ok != nil && mgauge.Len() > maxlen {
+				res.WriteHeader(http.StatusBadRequest)
+				return
+			}
+
+			// Добавляю новую метрику
+			mgauge.Set(vMetrics.ID, *vMetrics.Value)
+			// Выбираю новое значение метрики
+			var ok error
+			if *vMetrics.Value, ok = mgauge.Get(vMetrics.ID); ok != nil {
+				res.WriteHeader(http.StatusBadRequest)
+				return
+			}
 		}
 
-		metricCn, err := strconv.ParseFloat(metricVal, 64)
+		if vMetrics.MType == "counter" {
+			// контроль длинны карты
+			if _, ok := mmetric.Get(vMetrics.ID); ok != nil && mmetric.Len() > maxlen {
+				res.WriteHeader(http.StatusBadRequest)
+				return
+			}
+
+			// Добавляю новую метрику
+			mmetric.Set(vMetrics.ID, *vMetrics.Delta)
+			// Выбираю новое значение метрики
+			var ok error
+			if *vMetrics.Delta, ok = mmetric.Get(vMetrics.ID); ok != nil {
+				res.WriteHeader(http.StatusBadRequest)
+				return
+			}
+		}
+
+		jsonData, err := json.Marshal(vMetrics)
 		if err != nil {
 			res.WriteHeader(http.StatusBadRequest)
 			return
-		}
-		// контроль длинны карты
-		if _, ok := mgauge.Get(metricName); ok != nil && mgauge.Len() > maxlen {
-			res.WriteHeader(http.StatusBadRequest)
-			return
-		}
 
-		// Добавляю новую метрику
-		mgauge.Set(metricName, metricCn)
-
+		}
 		res.WriteHeader(http.StatusOK)
-		res.Write(nil)
-	})
-}
-
-func CounterPage(mmetric *storage.MetricCounter, maxlen int) http.HandlerFunc {
-	return logmy.RequestLogger(func(res http.ResponseWriter, req *http.Request) {
-		//		fmt.Printf("CounterPage \n")
-
-		if req.Method != http.MethodPost {
-			res.WriteHeader(http.StatusMethodNotAllowed)
-			return
-		}
-
-		aSt := strings.Split(req.URL.Path, "/")
-		if len(aSt) != 5 || aSt[1] != "update" || aSt[2] != "counter" {
-			res.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		metricName := aSt[3]
-		metricVal := aSt[4]
-		if metricName == "" || metricVal == "" || len(metricName) > 100 {
-			res.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		// Проверка корректности
-		metricCn, err := strconv.ParseInt(metricVal, 10, 64)
-		if err != nil {
-			res.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		// контроль длинны карты
-		if _, ok := mmetric.Get(metricName); ok != nil && mmetric.Len() > maxlen {
-			res.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		// Добавляю новую метрику
-		mmetric.Set(metricName, metricCn)
-		res.WriteHeader(http.StatusOK)
-		res.Write(nil)
+		res.Write([]byte(jsonData))
 	})
 }
 
@@ -163,5 +156,56 @@ func OneMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter)
 		res.WriteHeader(http.StatusOK)
 		io.WriteString(res, fmt.Sprintf("%v", Val))
 
+	})
+}
+
+func OnePostMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter) http.HandlerFunc {
+	return logmy.RequestLogger(func(res http.ResponseWriter, req *http.Request) {
+
+		//		fmt.Printf("OneMetricPage \n")
+		var vMetrics Metrics
+		if req.Method != http.MethodPost {
+			res.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
+
+		decoder := json.NewDecoder(req.Body)
+
+		if err := decoder.Decode(&vMetrics); err != nil {
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		//		fmt.Printf("vMetrics: %v \n", vMetrics)
+
+		if vMetrics.ID == "" || (vMetrics.MType != "gauge" && vMetrics.MType != "counter") || len(vMetrics.ID) > 100 {
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		if vMetrics.MType == "gauge" {
+			var ok error
+			if *vMetrics.Value, ok = mgauge.Get(vMetrics.ID); ok != nil {
+				res.WriteHeader(http.StatusBadRequest)
+				return
+			}
+		}
+
+		if vMetrics.MType == "counter" {
+			// контроль длинны карты
+			var ok error
+			if *vMetrics.Delta, ok = mmetric.Get(vMetrics.ID); ok != nil {
+				res.WriteHeader(http.StatusBadRequest)
+				return
+			}
+		}
+
+		jsonData, err := json.Marshal(vMetrics)
+		if err != nil {
+			res.WriteHeader(http.StatusBadRequest)
+			return
+
+		}
+		res.WriteHeader(http.StatusOK)
+		res.Write([]byte(jsonData))
 	})
 }

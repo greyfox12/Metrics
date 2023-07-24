@@ -1,10 +1,11 @@
 package post
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
-	"time"
 )
 
 type Counter int64
@@ -28,33 +29,65 @@ func NewClient(url string) Client {
 	return Client{url}
 }
 
+type Metrics struct {
+	ID    string   `json:"id"`              // имя метрики
+	MType string   `json:"type"`            // параметр, принимающий значение gauge или counter
+	Delta *int64   `json:"delta,omitempty"` // значение метрики в случае передачи counter
+	Value *float64 `json:"value,omitempty"` // значение метрики в случае передачи gauge
+}
+
 func (c Client) PostCounter(ga map[int]GaugeMetric, co map[int]CounterMetric) error {
-	fmt.Printf("Time: %v\n", time.Now().Unix())
+	//	fmt.Printf("Time: %v\n", time.Now().Unix())
 
+	adrstr := fmt.Sprintf("%s/update", c.url)
 	for _, val := range ga {
-		s := fmt.Sprintf("%s/update/gauge/%s/%v", c.url, val.Name, val.Val)
+		st := Metrics{ID: val.Name, MType: "gauge", Value: (*float64)(&val.Val)}
 
-		resp, err := http.Post(s, "Content-Type: text/plain", nil)
+		jsonData, err := json.Marshal(st)
+		if err != nil {
+			return error(err)
+		}
+
+		//		fmt.Printf("Ответ сервера: %v\n", string(jsonData))
+
+		resp, err := http.Post(adrstr, "Content-Type: application/json", bytes.NewBuffer(jsonData))
 		if err != nil {
 			return error(err)
 		}
 
 		defer resp.Body.Close()
-		_, _ = io.ReadAll(resp.Body)
+
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return error(err)
+		}
+		fmt.Println("response Body:", string(body))
 	}
 
 	for _, val := range co {
-		s := fmt.Sprintf("%s/update/counter/%s/%v", c.url, val.Name, val.Val)
-		resp, err := http.Post(s, "Content-Type: text/plain", nil)
+
+		st := Metrics{ID: val.Name, MType: "counter", Delta: (*int64)(&val.Val)}
+
+		jsonData, err := json.Marshal(st)
+		if err != nil {
+			return error(err)
+		}
+
+		//		fmt.Println(string(jsonData))
+
+		resp, err := http.Post(adrstr, "Content-Type: application/json", bytes.NewBuffer(jsonData))
 
 		if err != nil {
 			return error(err)
 		}
 
 		defer resp.Body.Close()
-		if _, err := io.ReadAll(resp.Body); err != nil {
+
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
 			return error(err)
 		}
+		fmt.Println("response Body:", string(body))
 
 	}
 	return nil
