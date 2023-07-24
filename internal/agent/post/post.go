@@ -92,7 +92,7 @@ func (c Client) PostCounter(ga map[int]GaugeMetric, co map[int]CounterMetric) er
 	}
 
 	/*	// проверяю value
-		adrstr = fmt.Sprintf("%s/value", c.url)
+		adrstr = fmt.Sprintf("%s/value/", c.url)
 		st := Metrics{ID: "Alloc", MType: "gauge"}
 
 		jsonData, err := json.Marshal(st)
