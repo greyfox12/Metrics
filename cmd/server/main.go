@@ -40,8 +40,10 @@ func main() {
 		r.Get("/value/counter/{metricName}", handler.OneMetricPage(gauge, metric))
 		r.Get("/*", handler.ErrorPage())
 		//		r.Route("/update", func(r chi.Router) {
-		r.Post("/update/", handler.GaugePage(gauge, metric, LenArr))
-		r.Post("/value", handler.OnePostMetricPage(gauge, metric))
+		r.Post("/update/", handler.PostPage(gauge, metric, LenArr))
+		r.Post("/value/", handler.OnePostMetricPage(gauge, metric))
+		r.Post("/update/gauge/{metricName}/{metricVal}", handler.GaugePage(gauge, LenArr))
+		r.Post("/update/counter/{metricName}/{metricVal}", handler.CounterPage(metric, LenArr))
 
 		//		r.Post("/update/counter/{metricName}/{metricVal}", handler.CounterPage(metric, LenArr))
 		r.Post("/*", handler.ErrorPage())

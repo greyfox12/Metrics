@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/greyfox12/Metrics/internal/server/logmy"
@@ -18,7 +19,7 @@ type Metrics struct {
 	Value *float64 `json:"value,omitempty"` // значение метрики в случае передачи gauge
 }
 
-func GaugePage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, maxlen int) http.HandlerFunc {
+func PostPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, maxlen int) http.HandlerFunc {
 	return logmy.RequestLogger(func(res http.ResponseWriter, req *http.Request) {
 
 		//		fmt.Printf("GaugePage \n")
@@ -97,6 +98,88 @@ func GaugePage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, max
 		}
 		res.WriteHeader(http.StatusOK)
 		res.Write([]byte(jsonData))
+	})
+}
+
+func GaugePage(mgauge *storage.GaugeCounter, maxlen int) http.HandlerFunc {
+	return logmy.RequestLogger(func(res http.ResponseWriter, req *http.Request) {
+
+		//		fmt.Printf("GaugePage \n")
+		if req.Method != http.MethodPost {
+			res.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
+
+		aSt := strings.Split(req.URL.Path, "/")
+
+		if len(aSt) != 5 || aSt[1] != "update" || aSt[2] != "gauge" {
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		metricName := aSt[3]
+		metricVal := aSt[4]
+		if metricName == "" || metricVal == "" || len(metricName) > 100 {
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		metricCn, err := strconv.ParseFloat(metricVal, 64)
+		if err != nil {
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		// контроль длинны карты
+		if _, ok := mgauge.Get(metricName); ok != nil && mgauge.Len() > maxlen {
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		// Добавляю новую метрику
+		mgauge.Set(metricName, metricCn)
+
+		res.WriteHeader(http.StatusOK)
+		res.Write(nil)
+	})
+}
+
+func CounterPage(mmetric *storage.MetricCounter, maxlen int) http.HandlerFunc {
+	return logmy.RequestLogger(func(res http.ResponseWriter, req *http.Request) {
+		//		fmt.Printf("CounterPage \n")
+
+		if req.Method != http.MethodPost {
+			res.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
+
+		aSt := strings.Split(req.URL.Path, "/")
+		if len(aSt) != 5 || aSt[1] != "update" || aSt[2] != "counter" {
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		metricName := aSt[3]
+		metricVal := aSt[4]
+		if metricName == "" || metricVal == "" || len(metricName) > 100 {
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		// Проверка корректности
+		metricCn, err := strconv.ParseInt(metricVal, 10, 64)
+		if err != nil {
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		// контроль длинны карты
+		if _, ok := mmetric.Get(metricName); ok != nil && mmetric.Len() > maxlen {
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		// Добавляю новую метрику
+		mmetric.Set(metricName, metricCn)
+		res.WriteHeader(http.StatusOK)
+		res.Write(nil)
 	})
 }
 

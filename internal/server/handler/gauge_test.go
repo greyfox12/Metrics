@@ -105,7 +105,7 @@ func TestGaugePage(t *testing.T) {
 			// создаём новый Recorder
 			w := httptest.NewRecorder()
 			//			request.Body = test.json
-			GaugePage(gauge, metric, 100).ServeHTTP(w, request)
+			PostPage(gauge, metric, 100).ServeHTTP(w, request)
 
 			res := w.Result()
 
