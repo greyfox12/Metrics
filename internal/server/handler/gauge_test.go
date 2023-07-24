@@ -57,7 +57,7 @@ func TestGaugePage(t *testing.T) {
 				MType: "gauge",
 			},
 			want: want{
-				code:        400,
+				code:        200,
 				response:    `{"status":"Bad Request"}`,
 				contentType: "application/json",
 			},

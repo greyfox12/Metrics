@@ -54,9 +54,10 @@ func PostPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, maxl
 				res.WriteHeader(http.StatusBadRequest)
 				return
 			}
+
 			if vMetrics.Value == nil {
-				res.WriteHeader(http.StatusBadRequest)
-				return
+
+				vMetrics.Value = new(float64)
 			}
 
 			// Добавляю новую метрику
@@ -76,12 +77,13 @@ func PostPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, maxl
 				return
 			}
 			if vMetrics.Delta == nil {
-				res.WriteHeader(http.StatusBadRequest)
-				return
+				vMetrics.Delta = new(int64)
+				//				res.WriteHeader(http.StatusBadRequest)
+				//				return
 			}
-
 			// Добавляю новую метрику
 			mmetric.Set(vMetrics.ID, *vMetrics.Delta)
+
 			// Выбираю новое значение метрики
 			var ok error
 			if *vMetrics.Delta, ok = mmetric.Get(vMetrics.ID); ok != nil {
