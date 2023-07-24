@@ -41,7 +41,7 @@ func PostPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, maxl
 			res.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		//		fmt.Printf("vMetrics: %v \n", vMetrics)
+		fmt.Printf("vMetrics: %v \n", vMetrics)
 
 		if vMetrics.ID == "" || (vMetrics.MType != "gauge" && vMetrics.MType != "counter") || len(vMetrics.ID) > 100 {
 			res.WriteHeader(http.StatusBadRequest)
@@ -97,6 +97,7 @@ func PostPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, maxl
 
 		}
 		res.WriteHeader(http.StatusOK)
+		res.Header().Set("Content-Type", "application/json")
 		res.Write([]byte(jsonData))
 	})
 }
@@ -272,7 +273,7 @@ func OnePostMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCoun
 			res.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		//		fmt.Printf("vMetrics: %v \n", vMetrics)
+		fmt.Printf("OnePostMetricPage vMetrics: %v \n", vMetrics)
 
 		if vMetrics.ID == "" || (vMetrics.MType != "gauge" && vMetrics.MType != "counter") || len(vMetrics.ID) > 100 {
 			res.WriteHeader(http.StatusBadRequest)
@@ -307,6 +308,7 @@ func OnePostMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCoun
 
 		}
 		res.WriteHeader(http.StatusOK)
+		res.Header().Set("Content-Type", "application/json")
 		res.Write([]byte(jsonData))
 	})
 }

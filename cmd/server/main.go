@@ -47,7 +47,6 @@ func main() {
 		r.Post("/update/gauge/{metricName}/{metricVal}", handler.GaugePage(gauge, LenArr))
 		r.Post("/update/counter/{metricName}/{metricVal}", handler.CounterPage(metric, LenArr))
 
-		//		r.Post("/update/counter/{metricName}/{metricVal}", handler.CounterPage(metric, LenArr))
 		r.Post("/*", handler.ErrorPage())
 
 		//		})
