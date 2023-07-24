@@ -285,7 +285,7 @@ func OnePostMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCoun
 			r, ok := mgauge.Get(vMetrics.ID)
 			vMetrics.Value = &r
 			if ok != nil {
-				res.WriteHeader(http.StatusBadRequest)
+				res.WriteHeader(http.StatusNotFound)
 				return
 			}
 		}
@@ -295,7 +295,7 @@ func OnePostMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCoun
 			r, ok := mmetric.Get(vMetrics.ID)
 			vMetrics.Delta = &r
 			if ok != nil {
-				res.WriteHeader(http.StatusBadRequest)
+				res.WriteHeader(http.StatusNotFound)
 				return
 			}
 		}
