@@ -27,6 +27,12 @@ func GaugePage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, max
 			res.WriteHeader(http.StatusMethodNotAllowed)
 			return
 		}
+		aSt := strings.Split(req.URL.Path, "/")
+
+		if len(aSt) != 2 || aSt[1] != "update" {
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
 
 		decoder := json.NewDecoder(req.Body)
 
@@ -47,6 +53,10 @@ func GaugePage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, max
 				res.WriteHeader(http.StatusBadRequest)
 				return
 			}
+			if vMetrics.Value == nil {
+				res.WriteHeader(http.StatusBadRequest)
+				return
+			}
 
 			// Добавляю новую метрику
 			mgauge.Set(vMetrics.ID, *vMetrics.Value)
@@ -61,6 +71,10 @@ func GaugePage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, max
 		if vMetrics.MType == "counter" {
 			// контроль длинны карты
 			if _, ok := mmetric.Get(vMetrics.ID); ok != nil && mmetric.Len() > maxlen {
+				res.WriteHeader(http.StatusBadRequest)
+				return
+			}
+			if vMetrics.Delta == nil {
 				res.WriteHeader(http.StatusBadRequest)
 				return
 			}
