@@ -90,5 +90,31 @@ func (c Client) PostCounter(ga map[int]GaugeMetric, co map[int]CounterMetric) er
 		fmt.Println("response Body:", string(body))
 
 	}
+
+	/*	// проверяю value
+		adrstr = fmt.Sprintf("%s/value", c.url)
+		st := Metrics{ID: "Alloc", MType: "gauge"}
+
+		jsonData, err := json.Marshal(st)
+		if err != nil {
+			return error(err)
+		}
+
+		//		fmt.Println(string(jsonData))
+
+		resp, err := http.Post(adrstr, "Content-Type: application/json", bytes.NewBuffer(jsonData))
+
+		if err != nil {
+			return error(err)
+		}
+
+		defer resp.Body.Close()
+
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return error(err)
+		}
+		fmt.Println("response Body value:", string(body))
+	*/
 	return nil
 }

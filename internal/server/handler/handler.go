@@ -192,7 +192,7 @@ func ErrorPage() http.HandlerFunc {
 		}
 
 		aSt := strings.Split(req.URL.Path, "/")
-		if aSt[1] == "update" && aSt[2] != "counter" && aSt[2] != "gauge" {
+		if len(aSt) < 3 || aSt[1] == "update" && aSt[2] != "counter" && aSt[2] != "gauge" {
 			res.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -280,8 +280,11 @@ func OnePostMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCoun
 		}
 
 		if vMetrics.MType == "gauge" {
-			var ok error
-			if *vMetrics.Value, ok = mgauge.Get(vMetrics.ID); ok != nil {
+
+			fmt.Printf("mgauge.Get(vMetrics.ID)=%v", vMetrics.ID)
+			r, ok := mgauge.Get(vMetrics.ID)
+			vMetrics.Value = &r
+			if ok != nil {
 				res.WriteHeader(http.StatusBadRequest)
 				return
 			}
@@ -289,8 +292,9 @@ func OnePostMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCoun
 
 		if vMetrics.MType == "counter" {
 			// контроль длинны карты
-			var ok error
-			if *vMetrics.Delta, ok = mmetric.Get(vMetrics.ID); ok != nil {
+			r, ok := mmetric.Get(vMetrics.ID)
+			vMetrics.Delta = &r
+			if ok != nil {
 				res.WriteHeader(http.StatusBadRequest)
 				return
 			}
