@@ -30,6 +30,9 @@ func PostPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, maxl
 		}
 		aSt := strings.Split(req.URL.Path, "/")
 
+		fmt.Printf("req.Body: %v \n", req.Body)
+		fmt.Printf("len(aSt): %v \n", len(aSt))
+
 		if len(aSt) != 2 || aSt[1] != "update" {
 			res.WriteHeader(http.StatusBadRequest)
 			return
