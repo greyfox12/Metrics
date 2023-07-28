@@ -5,6 +5,9 @@
 		},
 		{
 			"path": "."
+		},
+		{
+			"path": "internal/server/compress"
 		}
 	],
 	"settings": {}

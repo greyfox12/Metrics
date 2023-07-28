@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/greyfox12/Metrics/internal/agent/compress"
 )
 
 type Counter int64
@@ -49,19 +51,33 @@ func (c Client) PostCounter(ga map[int]GaugeMetric, co map[int]CounterMetric) er
 		}
 
 		//		fmt.Printf("Ответ сервера: %v\n", string(jsonData))
-
-		resp, err := http.Post(adrstr, "Content-Type: application/json", bytes.NewBuffer(jsonData))
+		jsonZip, err := compress.Compress(jsonData)
+		fmt.Printf("jsonZip: %+v\n", jsonZip)
 		if err != nil {
 			return error(err)
 		}
+		//		fmt.Printf("jsonZip=%v\n", jsonZip)
+		//	http.Header.Set("Content-Encoding", "gzip")
 
-		defer resp.Body.Close()
-
-		body, err := io.ReadAll(resp.Body)
+		client := &http.Client{
+			//			Timeout: time.Second * 10,
+		}
+		req, err := http.NewRequest("POST", adrstr, bytes.NewBuffer(jsonZip))
 		if err != nil {
 			return error(err)
 		}
-		fmt.Println("response Body:", string(body))
+		req.Header.Set("Content-Encoding", "gzip")
+		req.Header.Add("Content-Type", "application/json")
+		response, err := client.Do(req)
+		if err != nil {
+			return error(err)
+		}
+		body, err := io.ReadAll(response.Body)
+		if err != nil {
+			return error(err)
+		}
+		defer response.Body.Close()
+		fmt.Println("response Body:", body)
 	}
 
 	for _, val := range co {
@@ -73,21 +89,33 @@ func (c Client) PostCounter(ga map[int]GaugeMetric, co map[int]CounterMetric) er
 			return error(err)
 		}
 
-		//		fmt.Println(string(jsonData))
-
-		resp, err := http.Post(adrstr, "Content-Type: application/json", bytes.NewBuffer(jsonData))
-
+		jsonZip, err := compress.Compress(jsonData)
+		fmt.Printf("jsonZip: %+v\n", jsonZip)
 		if err != nil {
 			return error(err)
 		}
+		//		fmt.Printf("jsonZip=%v\n", jsonZip)
+		//	http.Header.Set("Content-Encoding", "gzip")
 
-		defer resp.Body.Close()
-
-		body, err := io.ReadAll(resp.Body)
+		client := &http.Client{
+			//			Timeout: time.Second * 10,
+		}
+		req, err := http.NewRequest("POST", adrstr, bytes.NewBuffer(jsonZip))
 		if err != nil {
 			return error(err)
 		}
-		fmt.Println("response Body:", string(body))
+		req.Header.Set("Content-Encoding", "gzip")
+		req.Header.Add("Content-Type", "application/json")
+		response, err := client.Do(req)
+		if err != nil {
+			return error(err)
+		}
+		body, err := io.ReadAll(response.Body)
+		if err != nil {
+			return error(err)
+		}
+		defer response.Body.Close()
+		fmt.Println("response Body:", body)
 
 	}
 

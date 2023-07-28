@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/greyfox12/Metrics/internal/server/compress"
 	"github.com/greyfox12/Metrics/internal/server/logmy"
 	"github.com/greyfox12/Metrics/internal/server/storage"
 )
@@ -24,23 +25,48 @@ func PostPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, maxl
 
 		//		fmt.Printf("GaugePage \n")
 		var vMetrics Metrics
+		body := make([]byte, 1000)
+		var err error
+		//		var reader io.Reader
+
 		if req.Method != http.MethodPost {
 			res.WriteHeader(http.StatusMethodNotAllowed)
 			return
 		}
 		aSt := strings.Split(req.URL.Path, "/")
 
-		fmt.Printf("req.Body: %v \n", req.Body)
-		fmt.Printf("len(aSt): %v \n", len(aSt))
+		//		fmt.Printf("req.Body: %v \n", req.Body)
+		fmt.Printf("req.Header: %v \n", req.Header.Get("Content-Encoding"))
 
-		if len(aSt) < 2 || aSt[1] != "update" {
+		n, err := req.Body.Read(body)
+		if err != nil && n <= 0 {
+			fmt.Printf("Error req.Body.Read(body):%v: \n", err)
+			fmt.Printf("n =%v, Body: %v \n", n, body)
 			res.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
-		decoder := json.NewDecoder(req.Body)
+		if req.Header.Get("Content-Encoding") == "gzip" || req.Header.Get("Content-Encoding") == "flate" {
+			//			fmt.Printf("Header gzip \n")
+			body, err = compress.Decompress(body, req.Header.Get("Content-Encoding"))
+			if err != nil {
+				fmt.Printf("Error ungzip %v\n", err)
+				res.WriteHeader(http.StatusBadRequest)
+				return
+			}
+		}
 
-		if err := decoder.Decode(&vMetrics); err != nil {
+		//		fmt.Printf("len(aSt): %v \n", len(aSt))
+
+		if len(aSt) < 2 || aSt[1] != "update" {
+			fmt.Printf("Error tags %v \n", len(aSt))
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		err = json.Unmarshal(body, &vMetrics)
+		if err != nil {
+			fmt.Printf("Error decode %v \n", err)
 			res.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -209,7 +235,7 @@ func ErrorPage() http.HandlerFunc {
 
 func ListMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter) http.HandlerFunc {
 	return logmy.RequestLogger(func(res http.ResponseWriter, req *http.Request) {
-		//		fmt.Printf("ListMetric page \n")
+		fmt.Printf("ListMetric page \n")
 
 		var body []string
 
@@ -224,7 +250,9 @@ func ListMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter
 				body = append(body, fmt.Sprintf("%s = %v", val, v))
 			}
 		}
+		res.Header().Set("Content-Type", "text/plain")
 		res.WriteHeader(http.StatusOK)
+		fmt.Printf("ListMetric page %v \n", res.Header())
 
 		io.WriteString(res, strings.Join(body, "\n"))
 	})

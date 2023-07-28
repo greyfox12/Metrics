@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/greyfox12/Metrics/internal/server/compress"
 	"github.com/greyfox12/Metrics/internal/server/getparam"
 	"github.com/greyfox12/Metrics/internal/server/handler"
 	"github.com/greyfox12/Metrics/internal/server/logmy"
@@ -52,5 +53,5 @@ func main() {
 		//		})
 	})
 
-	log.Fatal(http.ListenAndServe(IPAddress, r))
+	log.Fatal(http.ListenAndServe(IPAddress, compress.GzipHandle(r)))
 }
