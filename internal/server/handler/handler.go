@@ -252,7 +252,7 @@ func ListMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter
 				body = append(body, fmt.Sprintf("%s = %v", val, v))
 			}
 		}
-		res.Header().Set("Content-Type", "text/plain")
+		res.Header().Set("Content-Type", "text/html")
 		res.WriteHeader(http.StatusOK)
 		fmt.Printf("ListMetric page %v \n", res.Header())
 
