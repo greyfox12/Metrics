@@ -45,10 +45,12 @@ func PostPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, maxl
 			res.WriteHeader(http.StatusBadRequest)
 			return
 		}
+		bodyS := body[0:n]
+		fmt.Printf("n =%v, Body: %v \n", n, bodyS)
 
 		if req.Header.Get("Content-Encoding") == "gzip" || req.Header.Get("Content-Encoding") == "flate" {
 			//			fmt.Printf("Header gzip \n")
-			body, err = compress.Decompress(body, req.Header.Get("Content-Encoding"))
+			bodyS, err = compress.Decompress(body, req.Header.Get("Content-Encoding"))
 			if err != nil {
 				fmt.Printf("Error ungzip %v\n", err)
 				res.WriteHeader(http.StatusBadRequest)
@@ -64,7 +66,7 @@ func PostPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, maxl
 			return
 		}
 
-		err = json.Unmarshal(body, &vMetrics)
+		err = json.Unmarshal(bodyS, &vMetrics)
 		if err != nil {
 			fmt.Printf("Error decode %v \n", err)
 			res.WriteHeader(http.StatusBadRequest)
