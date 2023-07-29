@@ -8,6 +8,9 @@
 		},
 		{
 			"path": "internal/server/compress"
+		},
+		{
+			"path": "internal/server/filesave"
 		}
 	],
 	"settings": {}
