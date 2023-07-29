@@ -18,7 +18,7 @@ const (
 	LenArr           = 10000
 	defServerAdr     = "localhost:8080"
 	defStoreInterval = 300
-	defStorePath     = "metrics-db.json"
+	defStorePath     = "/tmp/metrics-db.json"
 	defRestore       = true
 )
 
