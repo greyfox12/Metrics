@@ -76,7 +76,7 @@ func LoadMetric(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, fi
 			return err
 		}
 		if metric.ID == "" || (metric.Value == nil && metric.Delta == nil) {
-			return errors.New("LoadMetric - Error field \n")
+			return errors.New("LoadMetric - Error field")
 		}
 
 		switch metric.MType {
