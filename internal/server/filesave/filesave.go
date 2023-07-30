@@ -67,7 +67,6 @@ func LoadMetric(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, fi
 		// читаем данные из scanner
 		data := scanner.Bytes()
 
-		//		fmt.Printf("data=%v\n", data)
 		metric := handler.Metrics{}
 		err := json.Unmarshal(data, &metric)
 		//		fmt.Printf("metric=%v\n", metric)
