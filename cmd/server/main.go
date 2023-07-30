@@ -45,7 +45,7 @@ func main() {
 	// Загрузка данных из файла
 	if vServerParam.Restore {
 		if err := filesave.LoadMetric(gauge, metric, vServerParam.FileStorePath); err != nil {
-			panic(err)
+			fmt.Printf("%v\n", err)
 		}
 	}
 
