@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -79,5 +80,6 @@ func main() {
 		//		})
 	})
 
+	fmt.Printf("Start Server %v\n", vServerParam.IPAddress)
 	log.Fatal(http.ListenAndServe(vServerParam.IPAddress, compress.GzipHandle(r)))
 }
