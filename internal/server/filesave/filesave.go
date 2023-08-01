@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/greyfox12/Metrics/internal/server/handler"
 	"github.com/greyfox12/Metrics/internal/server/storage"
 )
 
@@ -21,7 +20,7 @@ func SaveMetric(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, fi
 		if err != nil {
 			continue
 		}
-		st := handler.Metrics{ID: val, MType: "gauge", Value: (*float64)(&v)}
+		st := storage.Metrics{ID: val, MType: "gauge", Value: (*float64)(&v)}
 
 		jsonData, err := json.Marshal(st)
 		if err != nil {
@@ -37,7 +36,7 @@ func SaveMetric(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, fi
 		if err != nil {
 			continue
 		}
-		st := handler.Metrics{ID: val, MType: "metrica", Delta: (*int64)(&v)}
+		st := storage.Metrics{ID: val, MType: "metrica", Delta: (*int64)(&v)}
 
 		jsonData, err := json.Marshal(st)
 		if err != nil {
@@ -67,7 +66,7 @@ func LoadMetric(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, fi
 		// читаем данные из scanner
 		data := scanner.Bytes()
 
-		metric := handler.Metrics{}
+		metric := storage.Metrics{}
 		err := json.Unmarshal(data, &metric)
 		//		fmt.Printf("metric=%v\n", metric)
 		if err != nil {

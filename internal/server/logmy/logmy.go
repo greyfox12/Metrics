@@ -1,6 +1,7 @@
 package logmy
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -90,4 +91,11 @@ func RequestLogger(h http.HandlerFunc) http.HandlerFunc {
 		//	fmt.Printf("Write log\n")
 
 	})
+}
+
+func OutLog(error_str error) {
+	Log.Info("Error:",
+		zap.String("message", fmt.Sprint(error_str)),
+	)
+	Log.Sync()
 }

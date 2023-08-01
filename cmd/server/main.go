@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/greyfox12/Metrics/internal/server/compress"
 	"github.com/greyfox12/Metrics/internal/server/filesave"
 	"github.com/greyfox12/Metrics/internal/server/getparam"
@@ -60,24 +61,24 @@ func main() {
 	}
 
 	r := chi.NewRouter()
+	r.Use(middleware.StripSlashes)
+	r.Use(handler.SavePage(gauge, metric, LenArr, vServerParam)) // автосохранение данных
+	//	r.Use(middleware.Logger())
 
-	// определяем хендлер, который выводит определённую машину
+	// определяем хендлер
 	r.Route("/", func(r chi.Router) {
-		r.Get("/", handler.ListMetricPage(gauge, metric))
-		r.Get("/value/gauge/{metricName}", handler.OneMetricPage(gauge, metric))
-		r.Get("/value/counter/{metricName}", handler.OneMetricPage(gauge, metric))
-		r.Get("/*", handler.ErrorPage())
-		//		r.Route("/update", func(r chi.Router) {
-		r.Post("/update/", handler.PostPage(gauge, metric, LenArr))
-		r.Post("/value/", handler.OnePostMetricPage(gauge, metric))
-		r.Post("/update", handler.PostPage(gauge, metric, LenArr))
-		r.Post("/value", handler.OnePostMetricPage(gauge, metric))
-		r.Post("/update/gauge/{metricName}/{metricVal}", handler.GaugePage(gauge, LenArr))
-		r.Post("/update/counter/{metricName}/{metricVal}", handler.CounterPage(metric, LenArr))
+		r.Get("/", logmy.RequestLogger(handler.ListMetricPage(gauge, metric)))
+		r.Get("/value/gauge/{metricName}", logmy.RequestLogger(handler.OneMetricPage(gauge, metric)))
+		r.Get("/value/counter/{metricName}", logmy.RequestLogger(handler.OneMetricPage(gauge, metric)))
+		r.Get("/*", logmy.RequestLogger(handler.ErrorPage))
 
-		r.Post("/*", handler.ErrorPage())
+		r.Post("/update", logmy.RequestLogger(handler.PostPage(gauge, metric, LenArr, vServerParam)))
+		r.Post("/value", logmy.RequestLogger(handler.OnePostMetricPage(gauge, metric)))
+		r.Post("/update/gauge/{metricName}/{metricVal}", logmy.RequestLogger(handler.GaugePage(gauge, metric, LenArr, vServerParam)))
+		r.Post("/update/counter/{metricName}/{metricVal}", logmy.RequestLogger(handler.CounterPage(gauge, metric, LenArr, vServerParam)))
 
-		//		})
+		r.Post("/*", logmy.RequestLogger(handler.ErrorPage))
+
 	})
 
 	fmt.Printf("Start Server %v\n", vServerParam.IPAddress)
