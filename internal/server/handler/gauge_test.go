@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/greyfox12/Metrics/internal/server/getparam"
 	"github.com/greyfox12/Metrics/internal/server/storage"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -95,6 +96,11 @@ func TestGaugePage(t *testing.T) {
 	metric := new(storage.MetricCounter)
 	metric.Init(100)
 
+	vCfg := getparam.ServerParam{IPAddress: "localhost:8080",
+		StoreInterval: 300,
+		FileStorePath: "/tmp/metrics-db.json",
+		Restore:       true}
+
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			jsonData, _ := json.Marshal(test.data)
@@ -104,8 +110,8 @@ func TestGaugePage(t *testing.T) {
 			request := httptest.NewRequest(http.MethodPost, test.send, bytes.NewBuffer(jsonData))
 			// создаём новый Recorder
 			w := httptest.NewRecorder()
-			//			request.Body = test.json
-			PostPage(gauge, metric, 100).ServeHTTP(w, request)
+
+			PostPage(gauge, metric, 100, vCfg).ServeHTTP(w, request)
 
 			res := w.Result()
 
