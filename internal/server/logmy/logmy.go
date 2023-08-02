@@ -93,9 +93,9 @@ func RequestLogger(h http.HandlerFunc) http.HandlerFunc {
 	})
 }
 
-func OutLog(error_str error) {
+func OutLog(errorStr error) {
 	Log.Info("Error:",
-		zap.String("message", fmt.Sprint(error_str)),
+		zap.String("Message", fmt.Sprint(errorStr)),
 	)
 	Log.Sync()
 }
