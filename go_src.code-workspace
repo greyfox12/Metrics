@@ -11,6 +11,9 @@
 		},
 		{
 			"path": "internal/server/filesave"
+		},
+		{
+			"path": "internal/agent/getparam"
 		}
 	],
 	"settings": {}

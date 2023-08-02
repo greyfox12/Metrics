@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/greyfox12/Metrics/internal/agent/compress"
 )
@@ -60,7 +61,7 @@ func (c Client) PostCounter(ga map[int]GaugeMetric, co map[int]CounterMetric) er
 		//	http.Header.Set("Content-Encoding", "gzip")
 
 		client := &http.Client{
-			//			Timeout: time.Second * 10,
+			Timeout: time.Second * 10,
 		}
 		req, err := http.NewRequest("POST", adrstr, bytes.NewBuffer(jsonZip))
 		if err != nil {
@@ -73,10 +74,12 @@ func (c Client) PostCounter(ga map[int]GaugeMetric, co map[int]CounterMetric) er
 			return error(err)
 		}
 		body, err := io.ReadAll(response.Body)
+		defer response.Body.Close()
+
 		if err != nil {
 			return error(err)
 		}
-		defer response.Body.Close()
+
 		fmt.Println("response Body:", body)
 	}
 
@@ -110,39 +113,16 @@ func (c Client) PostCounter(ga map[int]GaugeMetric, co map[int]CounterMetric) er
 		if err != nil {
 			return error(err)
 		}
+
 		body, err := io.ReadAll(response.Body)
+		defer response.Body.Close()
 		if err != nil {
 			return error(err)
 		}
-		defer response.Body.Close()
+
 		fmt.Println("response Body:", body)
 
 	}
 
-	/*	// проверяю value
-		adrstr = fmt.Sprintf("%s/value/", c.url)
-		st := Metrics{ID: "Alloc", MType: "gauge"}
-
-		jsonData, err := json.Marshal(st)
-		if err != nil {
-			return error(err)
-		}
-
-		//		fmt.Println(string(jsonData))
-
-		resp, err := http.Post(adrstr, "Content-Type: application/json", bytes.NewBuffer(jsonData))
-
-		if err != nil {
-			return error(err)
-		}
-
-		defer resp.Body.Close()
-
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return error(err)
-		}
-		fmt.Println("response Body value:", string(body))
-	*/
 	return nil
 }

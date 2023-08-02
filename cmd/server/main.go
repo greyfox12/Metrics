@@ -19,7 +19,7 @@ import (
 const (
 	LenArr           = 10000
 	defServerAdr     = "localhost:8080"
-	defStoreInterval = 300
+	defStoreInterval = 10
 	defStorePath     = "/tmp/metrics-db.json"
 	defRestore       = true
 )
@@ -53,8 +53,10 @@ func main() {
 	// запускаю сохранение данных в файл
 	if vServerParam.StoreInterval > 0 {
 		go func(*storage.GaugeCounter, *storage.MetricCounter, getparam.ServerParam) {
+			ticker := time.NewTicker(time.Second * time.Duration(vServerParam.StoreInterval))
+			defer ticker.Stop()
 			for {
-				time.Sleep(time.Duration(vServerParam.StoreInterval) * time.Second)
+				<-ticker.C
 				filesave.SaveMetric(gauge, metric, vServerParam.FileStorePath)
 			}
 		}(gauge, metric, vServerParam)
@@ -63,7 +65,6 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.StripSlashes)
 	r.Use(handler.SavePage(gauge, metric, LenArr, vServerParam)) // автосохранение данных
-	//	r.Use(middleware.Logger())
 
 	// определяем хендлер
 	r.Route("/", func(r chi.Router) {
