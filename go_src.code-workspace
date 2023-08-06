@@ -5,6 +5,15 @@
 		},
 		{
 			"path": "."
+		},
+		{
+			"path": "internal/server/compress"
+		},
+		{
+			"path": "internal/server/filesave"
+		},
+		{
+			"path": "internal/agent/getparam"
 		}
 	],
 	"settings": {}

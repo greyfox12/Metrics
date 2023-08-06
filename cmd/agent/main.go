@@ -62,6 +62,9 @@ func main() {
 		ListGauge[23] = post.GaugeMetric{Name: "Sys", Val: post.Gauge(m.Sys)}
 		ListGauge[24] = post.GaugeMetric{Name: "TotalAlloc", Val: post.Gauge(m.TotalAlloc)}
 		ListGauge[25] = post.GaugeMetric{Name: "RandomValue", Val: post.Gauge(rand.Float64())}
+		ListGauge[26] = post.GaugeMetric{Name: "HeapInuse", Val: post.Gauge(m.HeapInuse)}
+		ListGauge[27] = post.GaugeMetric{Name: "MSpanInuse", Val: post.Gauge(m.MSpanInuse)}
+		ListGauge[28] = post.GaugeMetric{Name: "MSpanSys", Val: post.Gauge(m.MSpanSys)}
 
 		ListCounter[1] = post.CounterMetric{Name: "PollCount", Val: post.Counter(PollCount)}
 

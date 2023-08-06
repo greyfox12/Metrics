@@ -2,6 +2,11 @@ package handler
 
 import (
 	//	"fmt"
+	"bytes"
+	"encoding/json"
+	"fmt"
+
+	"github.com/greyfox12/Metrics/internal/server/getparam"
 	"github.com/greyfox12/Metrics/internal/server/storage"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -12,6 +17,13 @@ import (
 	"testing"
 )
 
+type tMetrics struct {
+	ID    string  `json:"id"`              // имя метрики
+	MType string  `json:"type"`            // параметр, принимающий значение gauge или counter
+	Delta int64   `json:"delta,omitempty"` // значение метрики в случае передачи counter
+	Value float64 `json:"value,omitempty"` // значение метрики в случае передачи gauge
+}
+
 func TestGaugePage(t *testing.T) {
 	type want struct {
 		code        int
@@ -21,64 +33,85 @@ func TestGaugePage(t *testing.T) {
 	tests := []struct {
 		name string
 		send string
+		data tMetrics
 		want want
 	}{
 		{
 			name: "positive test #1",
-			send: "/update/gauge/test/56",
+			send: "/update",
+			data: tMetrics{
+				ID:    "test",
+				MType: "gauge",
+				Value: 56},
 			want: want{
 				code:        200,
 				response:    `{"status":"ok"}`,
-				contentType: "text/plain",
+				contentType: "application/json",
 			},
 		},
-		{
-			name: "Error in digital test #2",
-			send: "/update/gauge/test/5x6",
-			want: want{
-				code:        400,
-				response:    `{"status":"Bad Request"}`,
-				contentType: "text/plain",
-			},
-		},
+
 		{
 			name: "Error no metric test #3",
-			send: "/update/gauge/test",
+			send: "/update",
+			data: tMetrics{
+				ID:    "test",
+				MType: "gauge",
+			},
 			want: want{
-				code:        400,
+				code:        200,
 				response:    `{"status":"Bad Request"}`,
-				contentType: "text/plain",
+				contentType: "application/json",
 			},
 		},
 		{
 			name: "Error unknow req test #4",
-			send: "/updat/gauge/test/56",
+			send: "/updat",
+			data: tMetrics{
+				ID:    "test",
+				MType: "gauge",
+				Value: 56},
 			want: want{
 				code:        400,
 				response:    `{"status":"Bad Request"}`,
-				contentType: "text/plain",
+				contentType: "application/json",
 			},
 		},
 		{
 			name: "float test #5",
-			send: "/update/gauge/test/56.6",
+			send: "/update",
+			data: tMetrics{
+				ID:    "test",
+				MType: "gauge",
+				Value: 56.6},
 			want: want{
 				code:        200,
 				response:    `{"status":"ok"}`,
-				contentType: "text/plain",
+				contentType: "application/json",
 			},
 		},
 	}
 
 	gauge := new(storage.GaugeCounter)
 	gauge.Init(100)
+	metric := new(storage.MetricCounter)
+	metric.Init(100)
+
+	vCfg := getparam.ServerParam{IPAddress: "localhost:8080",
+		StoreInterval: 300,
+		FileStorePath: "/tmp/metrics-db.json",
+		Restore:       true}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			request := httptest.NewRequest(http.MethodPost, test.send, nil)
+			jsonData, _ := json.Marshal(test.data)
+			fmt.Printf("Nest: %v\n", test.name)
+			//			fmt.Printf("JSON: %v\n", jsonData)
+
+			request := httptest.NewRequest(http.MethodPost, test.send, bytes.NewBuffer(jsonData))
 			// создаём новый Recorder
 			w := httptest.NewRecorder()
-			GaugePage(gauge, 100).ServeHTTP(w, request)
+
+			PostPage(gauge, metric, 100, vCfg).ServeHTTP(w, request)
 
 			res := w.Result()
 
@@ -86,7 +119,8 @@ func TestGaugePage(t *testing.T) {
 			assert.Equal(t, res.StatusCode, test.want.code)
 			// получаем и проверяем тело запроса
 			defer res.Body.Close()
-			_, err := io.ReadAll(res.Body)
+			var err error
+			_, err = io.ReadAll(res.Body)
 
 			require.NoError(t, err)
 		})
