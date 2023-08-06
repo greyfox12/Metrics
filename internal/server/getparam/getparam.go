@@ -14,6 +14,7 @@ type ServerParam struct {
 	StoreInterval int
 	FileStorePath string
 	Restore       bool
+	DSN           string
 }
 
 func Param(sp *ServerParam) ServerParam {
@@ -49,10 +50,15 @@ func Param(sp *ServerParam) ServerParam {
 		}
 	}
 
+	if cfg.FileStorePath, ok = os.LookupEnv("DATABASE_DSN"); !ok {
+		cfg.DSN = sp.DSN
+	}
+
 	flag.StringVar(&cfg.IPAddress, "a", cfg.IPAddress, "Endpoint server IP address host:port")
 	flag.StringVar(&cfg.FileStorePath, "f", cfg.FileStorePath, "File Store Path")
 	flag.IntVar(&cfg.StoreInterval, "i", cfg.StoreInterval, "Store interval")
 	flag.BoolVar(&cfg.Restore, "r", cfg.Restore, "Restore data from file")
+	flag.StringVar(&cfg.DSN, "d", cfg.DSN, "Restore data from file")
 	flag.Parse()
 	return cfg
 }

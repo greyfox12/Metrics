@@ -26,6 +26,7 @@ const (
 	defStoreInterval = 10
 	defStorePath     = "/tmp/metrics-db.json"
 	defRestore       = true
+	defDSN           = "host=localhost user=videos password=videos dbname=postgres sslmode=disable"
 )
 
 func main() {
@@ -33,7 +34,9 @@ func main() {
 	vServerParam := getparam.ServerParam{IPAddress: defServerAdr,
 		StoreInterval: defStoreInterval,
 		FileStorePath: defStorePath,
-		Restore:       defRestore}
+		Restore:       defRestore,
+		DSN:           defDSN,
+	}
 	// запрашиваю параметры ключей-переменных окружения
 	vServerParam = getparam.Param(&vServerParam)
 
@@ -67,10 +70,9 @@ func main() {
 	}
 
 	// Подключение к БД
-	ps := fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable",
-		`localhost`, `videos`, `videos`, `postgres`)
 
-	db, err := sql.Open("pgx", ps)
+	fmt.Printf("DSN: %v\n", vServerParam.DSN)
+	db, err := sql.Open("pgx", vServerParam.DSN)
 	if err != nil {
 		logmy.OutLog(err)
 		fmt.Printf("Error connect DB: %v\n", err)
