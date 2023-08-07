@@ -93,7 +93,7 @@ func (c Client) PostCounter(ga map[int]GaugeMetric, co map[int]CounterMetric) er
 		}
 
 		jsonZip, err := compress.Compress(jsonData)
-		fmt.Printf("jsonZip: %+v\n", jsonZip)
+		//		fmt.Printf("jsonZip: %+v\n", jsonZip)
 		if err != nil {
 			return error(err)
 		}
