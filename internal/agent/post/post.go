@@ -98,7 +98,6 @@ func (c Client) PostCounter(ga map[int]GaugeMetric, co map[int]CounterMetric) er
 			return error(err)
 		}
 		//		fmt.Printf("jsonZip=%v\n", jsonZip)
-		//	http.Header.Set("Content-Encoding", "gzip")
 
 		client := &http.Client{
 			Timeout: time.Second * 10,
