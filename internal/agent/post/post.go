@@ -101,7 +101,7 @@ func (c Client) PostCounter(ga map[int]GaugeMetric, co map[int]CounterMetric) er
 		//	http.Header.Set("Content-Encoding", "gzip")
 
 		client := &http.Client{
-			//			Timeout: time.Second * 10,
+			Timeout: time.Second * 10,
 		}
 		req, err := http.NewRequest("POST", adrstr, bytes.NewBuffer(jsonZip))
 		if err != nil {
