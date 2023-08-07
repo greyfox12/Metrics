@@ -79,7 +79,7 @@ func main() {
 	*/
 	r := chi.NewRouter()
 	r.Use(middleware.StripSlashes)
-	r.Use(handler.SavePage(gauge, metric, LenArr, vServerParam)) // автосохранение данных
+	//	r.Use(handler.SavePage(gauge, metric, LenArr, vServerParam)) // автосохранение данных
 
 	// определяем хендлер
 	r.Route("/", func(r chi.Router) {
