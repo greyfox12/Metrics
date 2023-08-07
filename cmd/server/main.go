@@ -23,7 +23,7 @@ import (
 const (
 	LenArr           = 10000
 	defServerAdr     = "localhost:8080"
-	defStoreInterval = 10
+	defStoreInterval = 300
 	defStorePath     = "/tmp/metrics-db.json"
 	defRestore       = true
 	defDSN           = "host=localhost user=videos password=videos dbname=postgres sslmode=disable"

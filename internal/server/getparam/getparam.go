@@ -27,6 +27,7 @@ func Param(sp *ServerParam) ServerParam {
 	if cfg.IPAddress, ok = os.LookupEnv("ADDRESS"); !ok {
 		cfg.IPAddress = sp.IPAddress
 	}
+	fmt.Printf("LookupEnv(ADDRESS)=%v\n", cfg.IPAddress)
 
 	if tStr, ok = os.LookupEnv("STORE_INTERVAL"); !ok {
 		cfg.StoreInterval = sp.StoreInterval
@@ -53,6 +54,7 @@ func Param(sp *ServerParam) ServerParam {
 	if cfg.FileStorePath, ok = os.LookupEnv("DATABASE_DSN"); !ok {
 		cfg.DSN = sp.DSN
 	}
+	fmt.Printf("LookupEnv(DATABASE_DSN)=%v\n", cfg.DSN)
 
 	flag.StringVar(&cfg.IPAddress, "a", cfg.IPAddress, "Endpoint server IP address host:port")
 	flag.StringVar(&cfg.FileStorePath, "f", cfg.FileStorePath, "File Store Path")
@@ -60,5 +62,8 @@ func Param(sp *ServerParam) ServerParam {
 	flag.BoolVar(&cfg.Restore, "r", cfg.Restore, "Restore data from file")
 	flag.StringVar(&cfg.DSN, "d", cfg.DSN, "Restore data from file")
 	flag.Parse()
+
+	fmt.Printf("After key (ADDRESS)=%v\n", cfg.IPAddress)
+	fmt.Printf("After key (DATABASE_DSN)=%v\n", cfg.DSN)
 	return cfg
 }
