@@ -41,6 +41,7 @@ func Param() TConfig {
 	var cfg TConfig
 	if res, ok := os.LookupEnv("ADDRESS"); ok {
 		cfg.Address = res
+		fmt.Printf("LookupEnv(ADDRESS)=%v\n", res)
 	}
 
 	if tmp, ok := os.LookupEnv("REPORT_INTERVAL"); ok {
@@ -83,9 +84,11 @@ func Param() TConfig {
 	flag.IntVar(&cfg.ReportInterval, "r", cfg.ReportInterval, "Report interval sec.")
 	flag.Parse()
 
+	fmt.Printf("*ServerAd=%v\n", *ServerAdr)
 	if *ServerAdr != "" {
 		cfg.Address = string(*ServerAdr)
 	}
 
+	fmt.Printf("cfg.Address=%v\n", cfg.Address)
 	return cfg
 }
