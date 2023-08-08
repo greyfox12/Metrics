@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/greyfox12/Metrics/internal/server/compress"
+	"github.com/greyfox12/Metrics/internal/server/filesave"
 	"github.com/greyfox12/Metrics/internal/server/getparam"
 	"github.com/greyfox12/Metrics/internal/server/handler"
 	"github.com/greyfox12/Metrics/internal/server/logmy"
@@ -19,7 +21,7 @@ import (
 const (
 	LenArr           = 10000
 	defServerAdr     = "localhost:8080"
-	defStoreInterval = 300
+	defStoreInterval = 10
 	defStorePath     = "/tmp/metrics-db.json"
 	defRestore       = true
 	defDSN           = "host=localhost user=videos password=videos dbname=postgres sslmode=disable"
@@ -47,24 +49,24 @@ func main() {
 	metric.Init(LenArr)
 
 	// Загрузка данных из файла
-	/*	if vServerParam.Restore {
-			if err := filesave.LoadMetric(gauge, metric, vServerParam.FileStorePath); err != nil {
-				fmt.Printf("%v\n", err)
-			}
+	if vServerParam.Restore {
+		if err := filesave.LoadMetric(gauge, metric, vServerParam.FileStorePath); err != nil {
+			fmt.Printf("%v\n", err)
 		}
-	*/
+	}
+
 	// запускаю сохранение данных в файл
-	/*	if vServerParam.StoreInterval > 0 {
-			go func(*storage.GaugeCounter, *storage.MetricCounter, getparam.ServerParam) {
-				ticker := time.NewTicker(time.Second * time.Duration(vServerParam.StoreInterval))
-				defer ticker.Stop()
-				for {
-					<-ticker.C
-					filesave.SaveMetric(gauge, metric, vServerParam.FileStorePath)
-				}
-			}(gauge, metric, vServerParam)
-		}
-	*/
+	if vServerParam.StoreInterval > 0 {
+		go func(*storage.GaugeCounter, *storage.MetricCounter, getparam.ServerParam) {
+			ticker := time.NewTicker(time.Second * time.Duration(vServerParam.StoreInterval))
+			defer ticker.Stop()
+			for {
+				<-ticker.C
+				filesave.SaveMetric(gauge, metric, vServerParam.FileStorePath)
+			}
+		}(gauge, metric, vServerParam)
+	}
+
 	// Подключение к БД
 
 	/*	fmt.Printf("DSN: %v\n", vServerParam.DSN)
@@ -77,7 +79,7 @@ func main() {
 	*/
 	r := chi.NewRouter()
 	r.Use(middleware.StripSlashes)
-	//	r.Use(handler.SavePage(gauge, metric, LenArr, vServerParam)) // автосохранение данных
+	r.Use(handler.SavePage(gauge, metric, LenArr, vServerParam)) // автосохранение данных
 
 	// определяем хендлер
 	r.Route("/", func(r chi.Router) {

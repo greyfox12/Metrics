@@ -65,5 +65,9 @@ func Param(sp *ServerParam) ServerParam {
 
 	fmt.Printf("After key (ADDRESS)=%v\n", cfg.IPAddress)
 	fmt.Printf("After key (DATABASE_DSN)=%v\n", cfg.DSN)
+	fmt.Printf("After key cfg.FileStorePath=%v\n", cfg.FileStorePath)
+	fmt.Printf("After key cfg.StoreInterval=%v\n", cfg.StoreInterval)
+	fmt.Printf("After key cfg.Restore=%v\n", cfg.Restore)
+	fmt.Printf("os.Args=%v\n", os.Args)
 	return cfg
 }
