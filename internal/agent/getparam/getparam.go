@@ -42,6 +42,8 @@ func Param() TConfig {
 	if res, ok := os.LookupEnv("ADDRESS"); ok {
 		cfg.Address = res
 		fmt.Printf("LookupEnv(ADDRESS)=%v\n", res)
+	} else {
+		cfg.Address = DefServerAdr
 	}
 
 	if tmp, ok := os.LookupEnv("REPORT_INTERVAL"); ok {
@@ -69,25 +71,22 @@ func Param() TConfig {
 	if cfg.Address != "" && !strings.HasPrefix(cfg.Address, "http://") {
 		cfg.Address = "http://" + cfg.Address
 	}
-	if cfg.Address == "" {
-		cfg.Address = DefServerAdr
-	}
 
 	// Ключи командной строки
-	ServerAdr := new(NetAddress) // {"http://localhost:8080"}
-	_ = flag.Value(ServerAdr)
+	//	ServerAdr := new(NetAddress) // {"http://localhost:8080"}
+	//	_ = flag.Value(ServerAdr)
 
 	// проверка реализации
-	flag.Var(ServerAdr, "a", "Net address host:port")
+	flag.StringVar(&cfg.Address, "a", cfg.Address, "Net address host:port")
 
 	flag.IntVar(&cfg.PollInterval, "p", cfg.PollInterval, "Pool interval sec.")
 	flag.IntVar(&cfg.ReportInterval, "r", cfg.ReportInterval, "Report interval sec.")
 	flag.Parse()
 
-	fmt.Printf("*ServerAd=%v\n", *ServerAdr)
-	if *ServerAdr != "" {
-		cfg.Address = string(*ServerAdr)
-	}
+	//	fmt.Printf("*ServerAd=%v\n", *ServerAdr)
+	//	if *ServerAdr != "" {
+	//		cfg.Address = string(*ServerAdr)
+	//	}
 
 	fmt.Printf("cfg.Address=%v\n", cfg.Address)
 	return cfg
