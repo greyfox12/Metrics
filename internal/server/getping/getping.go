@@ -22,6 +22,7 @@ func GetPing(db *sql.DB) http.HandlerFunc {
 		if err := db.PingContext(ctx); err != nil {
 			fmt.Printf("Error Ping DB: %v\n", err)
 			res.WriteHeader(http.StatusInternalServerError)
+			return
 		}
 
 		res.WriteHeader(http.StatusOK)
