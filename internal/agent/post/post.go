@@ -46,82 +46,59 @@ func (c Client) PostCounter(ga map[int]GaugeMetric, co map[int]CounterMetric) er
 	for _, val := range ga {
 		st := Metrics{ID: val.Name, MType: "gauge", Value: (*float64)(&val.Val)}
 
-		jsonData, err := json.Marshal(st)
-		if err != nil {
-			return error(err)
+		if ok := postMess(st, adrstr); ok != nil {
+			fmt.Printf("Error post: %v, %v\n", st, ok)
 		}
-
-		//		fmt.Printf("Ответ сервера: %v\n", string(jsonData))
-		jsonZip, err := compress.Compress(jsonData)
-		fmt.Printf("jsonZip: %+v\n", jsonZip)
-		if err != nil {
-			return error(err)
-		}
-		//		fmt.Printf("jsonZip=%v\n", jsonZip)
-		//	http.Header.Set("Content-Encoding", "gzip")
-
-		client := &http.Client{
-			Timeout: time.Second * 10,
-		}
-		req, err := http.NewRequest("POST", adrstr, bytes.NewBuffer(jsonZip))
-		if err != nil {
-			return error(err)
-		}
-		req.Header.Set("Content-Encoding", "gzip")
-		req.Header.Add("Content-Type", "application/json")
-		response, err := client.Do(req)
-		if err != nil {
-			return error(err)
-		}
-		body, err := io.ReadAll(response.Body)
-		defer response.Body.Close()
-
-		if err != nil {
-			return error(err)
-		}
-
-		fmt.Println("response Body:", body)
 	}
 
 	for _, val := range co {
 
 		st := Metrics{ID: val.Name, MType: "counter", Delta: (*int64)(&val.Val)}
 
-		jsonData, err := json.Marshal(st)
-		if err != nil {
-			return error(err)
+		if ok := postMess(st, adrstr); ok != nil {
+			fmt.Printf("Error post: %v, %v\n", st, ok)
 		}
-
-		jsonZip, err := compress.Compress(jsonData)
-		//		fmt.Printf("jsonZip: %+v\n", jsonZip)
-		if err != nil {
-			return error(err)
-		}
-		//		fmt.Printf("jsonZip=%v\n", jsonZip)
-
-		client := &http.Client{
-			Timeout: time.Second * 10,
-		}
-		req, err := http.NewRequest("POST", adrstr, bytes.NewBuffer(jsonZip))
-		if err != nil {
-			return error(err)
-		}
-		req.Header.Set("Content-Encoding", "gzip")
-		req.Header.Add("Content-Type", "application/json")
-		response, err := client.Do(req)
-		if err != nil {
-			return error(err)
-		}
-
-		body, err := io.ReadAll(response.Body)
-		defer response.Body.Close()
-		if err != nil {
-			return error(err)
-		}
-
-		fmt.Println("response Body:", body)
-
 	}
 
+	return nil
+}
+
+func postMess(st Metrics, adrstr string) error {
+	var err error
+	jsonData, err := json.Marshal(st)
+	if err != nil {
+		return error(err)
+	}
+
+	//		fmt.Printf("Ответ сервера: %v\n", string(jsonData))
+	jsonZip, err := compress.Compress(jsonData)
+	//		fmt.Printf("jsonZip: %+v\n", jsonZip)
+	if err != nil {
+		return error(err)
+	}
+	//		fmt.Printf("jsonZip=%v\n", jsonZip)
+	//	http.Header.Set("Content-Encoding", "gzip")
+
+	client := &http.Client{
+		Timeout: time.Second * 10,
+	}
+	req, err := http.NewRequest("POST", adrstr, bytes.NewBuffer(jsonZip))
+	if err != nil {
+		return error(err)
+	}
+	req.Header.Set("Content-Encoding", "gzip")
+	req.Header.Add("Content-Type", "application/json")
+	response, err := client.Do(req)
+	if err != nil {
+		return error(err)
+	}
+
+	_, err = io.ReadAll(response.Body)
+	defer response.Body.Close()
+
+	if err != nil {
+		return error(err)
+	}
+	//	fmt.Println("response Body:", body)
 	return nil
 }
