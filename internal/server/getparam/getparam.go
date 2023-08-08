@@ -51,7 +51,7 @@ func Param(sp *ServerParam) ServerParam {
 		}
 	}
 
-	if cfg.FileStorePath, ok = os.LookupEnv("DATABASE_DSN"); !ok {
+	if cfg.DSN, ok = os.LookupEnv("DATABASE_DSN"); !ok {
 		cfg.DSN = sp.DSN
 	}
 	fmt.Printf("LookupEnv(DATABASE_DSN)=%v\n", cfg.DSN)
