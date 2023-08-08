@@ -51,17 +51,20 @@ func Param(sp *ServerParam) ServerParam {
 		}
 	}
 
-	if cfg.DSN, ok = os.LookupEnv("DATABASE_DSN"); !ok {
-		cfg.DSN = sp.DSN
-	}
-	fmt.Printf("LookupEnv(DATABASE_DSN)=%v\n", cfg.DSN)
-
 	flag.StringVar(&cfg.IPAddress, "a", cfg.IPAddress, "Endpoint server IP address host:port")
 	flag.StringVar(&cfg.FileStorePath, "f", cfg.FileStorePath, "File Store Path")
 	flag.IntVar(&cfg.StoreInterval, "i", cfg.StoreInterval, "Store interval")
 	flag.BoolVar(&cfg.Restore, "r", cfg.Restore, "Restore data from file")
-	flag.StringVar(&cfg.DSN, "d", cfg.DSN, "Restore data from file")
+	flag.StringVar(&cfg.DSN, "d", "", "Restore data from file")
 	flag.Parse()
+
+	fmt.Printf("LookupEnv(DATABASE_DSN)=%v\n", os.LookupEnv("DATABASE_DSN"))
+	if tStr, ok = os.LookupEnv("DATABASE_DSN"); ok {
+		cfg.DSN = tStr
+	}
+	if cfg.DSN == "" {
+		cfg.DSN = sp.DSN
+	}
 
 	fmt.Printf("After key (ADDRESS)=%v\n", cfg.IPAddress)
 	fmt.Printf("After key (DATABASE_DSN)=%v\n", cfg.DSN)
