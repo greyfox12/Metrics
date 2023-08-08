@@ -58,8 +58,8 @@ func Param(sp *ServerParam) ServerParam {
 	flag.StringVar(&cfg.DSN, "d", "", "Restore data from file")
 	flag.Parse()
 
-	fmt.Printf("LookupEnv(DATABASE_DSN)=%v\n", os.LookupEnv("DATABASE_DSN"))
 	if tStr, ok = os.LookupEnv("DATABASE_DSN"); ok {
+		fmt.Printf("LookupEnv(DATABASE_DSN)=%v\n", tStr)
 		cfg.DSN = tStr
 	}
 	if cfg.DSN == "" {
