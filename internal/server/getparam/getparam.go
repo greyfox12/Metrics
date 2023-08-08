@@ -69,5 +69,6 @@ func Param(sp *ServerParam) ServerParam {
 	fmt.Printf("After key cfg.StoreInterval=%v\n", cfg.StoreInterval)
 	fmt.Printf("After key cfg.Restore=%v\n", cfg.Restore)
 	fmt.Printf("os.Args=%v\n", os.Args)
+	fmt.Printf("os.Environ=%v\n", os.Environ())
 	return cfg
 }
