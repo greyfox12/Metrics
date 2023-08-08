@@ -83,6 +83,9 @@ func Param() TConfig {
 	flag.IntVar(&cfg.ReportInterval, "r", cfg.ReportInterval, "Report interval sec.")
 	flag.Parse()
 
+	if !strings.HasPrefix(cfg.Address, "http://") {
+		cfg.Address = "http://" + cfg.Address
+	}
 	//	fmt.Printf("*ServerAd=%v\n", *ServerAdr)
 	//	if *ServerAdr != "" {
 	//		cfg.Address = string(*ServerAdr)
