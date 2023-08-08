@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
@@ -13,6 +14,7 @@ import (
 	"github.com/greyfox12/Metrics/internal/server/compress"
 	"github.com/greyfox12/Metrics/internal/server/filesave"
 	"github.com/greyfox12/Metrics/internal/server/getparam"
+	"github.com/greyfox12/Metrics/internal/server/getping"
 	"github.com/greyfox12/Metrics/internal/server/handler"
 	"github.com/greyfox12/Metrics/internal/server/logmy"
 	"github.com/greyfox12/Metrics/internal/server/storage"
@@ -69,14 +71,14 @@ func main() {
 
 	// Подключение к БД
 
-	/*	fmt.Printf("DSN: %v\n", vServerParam.DSN)
-		db, err := sql.Open("pgx", vServerParam.DSN)
-		if err != nil {
-			logmy.OutLog(err)
-			fmt.Printf("Error connect DB: %v\n", err)
-		}
-		defer db.Close()
-	*/
+	fmt.Printf("DSN: %v\n", vServerParam.DSN)
+	db, err := sql.Open("pgx", vServerParam.DSN)
+	if err != nil {
+		logmy.OutLog(err)
+		fmt.Printf("Error connect DB: %v\n", err)
+	}
+	defer db.Close()
+
 	r := chi.NewRouter()
 	r.Use(middleware.StripSlashes)
 	r.Use(handler.SavePage(gauge, metric, LenArr, vServerParam)) // автосохранение данных
@@ -86,7 +88,7 @@ func main() {
 		r.Get("/", logmy.RequestLogger(handler.ListMetricPage(gauge, metric)))
 		r.Get("/value/gauge/{metricName}", logmy.RequestLogger(handler.OneMetricPage(gauge, metric)))
 		r.Get("/value/counter/{metricName}", logmy.RequestLogger(handler.OneMetricPage(gauge, metric)))
-		//		r.Get("/ping", logmy.RequestLogger(getping.GetPing(db)))
+		r.Get("/ping", logmy.RequestLogger(getping.GetPing(db)))
 		r.Get("/*", logmy.RequestLogger(handler.ErrorPage))
 
 		r.Post("/update", logmy.RequestLogger(handler.PostPage(gauge, metric, LenArr, vServerParam)))
