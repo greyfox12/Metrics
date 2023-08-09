@@ -15,6 +15,9 @@ type ServerParam struct {
 	FileStorePath string
 	Restore       bool
 	DSN           string
+	OnDSN         bool
+	OnFile        bool
+	OnMap         bool
 }
 
 func Param(sp *ServerParam) ServerParam {
@@ -66,12 +69,21 @@ func Param(sp *ServerParam) ServerParam {
 		cfg.DSN = sp.DSN
 	}
 
+	// Определяю где храним данные
+	cfg.OnDSN = cfg.DSN != ""
+	cfg.OnFile = cfg.DSN == "" && cfg.FileStorePath != ""
+	cfg.OnMap = cfg.DSN == "" && cfg.FileStorePath == ""
+
 	fmt.Printf("After key (ADDRESS)=%v\n", cfg.IPAddress)
 	fmt.Printf("After key (DATABASE_DSN)=%v\n", cfg.DSN)
 	fmt.Printf("After key cfg.FileStorePath=%v\n", cfg.FileStorePath)
 	fmt.Printf("After key cfg.StoreInterval=%v\n", cfg.StoreInterval)
 	fmt.Printf("After key cfg.Restore=%v\n", cfg.Restore)
-	fmt.Printf("os.Args=%v\n", os.Args)
-	fmt.Printf("os.Environ=%v\n", os.Environ())
+
+	fmt.Printf("cfg.OnDSN=%v\n", cfg.OnDSN)
+	fmt.Printf("After key cfg.OnFile=%v\n", cfg.OnFile)
+
+	//	fmt.Printf("os.Args=%v\n", os.Args)
+	//	fmt.Printf("os.Environ=%v\n", os.Environ())
 	return cfg
 }

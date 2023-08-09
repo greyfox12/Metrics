@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -10,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/greyfox12/Metrics/internal/server/compress"
+	"github.com/greyfox12/Metrics/internal/server/dbstore"
 	"github.com/greyfox12/Metrics/internal/server/filesave"
 	"github.com/greyfox12/Metrics/internal/server/getparam"
 	"github.com/greyfox12/Metrics/internal/server/logmy"
@@ -343,7 +345,7 @@ func OnePostMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCoun
 	}
 }
 
-func SavePage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, maxlen int, cfg getparam.ServerParam) func(next http.Handler) http.Handler {
+func SavePage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, db *sql.DB, cfg getparam.ServerParam) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			next.ServeHTTP(w, r)
@@ -351,7 +353,12 @@ func SavePage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, maxl
 			if len(aSt) > 1 && aSt[1] == "update" && cfg.StoreInterval == 0 {
 
 				logmy.OutLog(errors.New("SavePage"))
-				filesave.SaveMetric(mgauge, mmetric, cfg.FileStorePath)
+				if cfg.OnFile {
+					filesave.SaveMetric(mgauge, mmetric, cfg.FileStorePath)
+				}
+				if cfg.OnDSN {
+					dbstore.SaveMetric(mgauge, mmetric, db)
+				}
 			}
 		}
 

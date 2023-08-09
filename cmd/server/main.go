@@ -12,6 +12,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/greyfox12/Metrics/internal/server/compress"
+	"github.com/greyfox12/Metrics/internal/server/dbstore"
 	"github.com/greyfox12/Metrics/internal/server/filesave"
 	"github.com/greyfox12/Metrics/internal/server/getparam"
 	"github.com/greyfox12/Metrics/internal/server/getping"
@@ -30,6 +31,7 @@ const (
 )
 
 func main() {
+	var db *sql.DB
 
 	vServerParam := getparam.ServerParam{IPAddress: defServerAdr,
 		StoreInterval: defStoreInterval,
@@ -51,37 +53,55 @@ func main() {
 	metric.Init(LenArr)
 
 	// Загрузка данных из файла
-	if vServerParam.Restore {
+	if vServerParam.Restore && vServerParam.OnFile {
 		if err := filesave.LoadMetric(gauge, metric, vServerParam.FileStorePath); err != nil {
 			fmt.Printf("%v\n", err)
 		}
 	}
 
+	// Подключение к БД
+	if vServerParam.OnDSN {
+		var err error
+		fmt.Printf("DSN: %v\n", vServerParam.DSN)
+		db, err = sql.Open("pgx", vServerParam.DSN)
+		if err != nil {
+			logmy.OutLog(err)
+			fmt.Printf("Error connect DB: %v\n", err)
+		}
+		defer db.Close()
+		_ = dbstore.CreateDB(db)
+
+		if vServerParam.Restore {
+			if err := dbstore.LoadMetric(gauge, metric, db); err != nil {
+				fmt.Printf("%v\n", err)
+			}
+		}
+	}
+
 	// запускаю сохранение данных в файл
-	if vServerParam.StoreInterval > 0 {
-		go func(*storage.GaugeCounter, *storage.MetricCounter, getparam.ServerParam) {
+	if (vServerParam.OnFile || vServerParam.OnDSN) && vServerParam.StoreInterval > 0 {
+		go func(*storage.GaugeCounter, *storage.MetricCounter, *sql.DB, getparam.ServerParam) {
 			ticker := time.NewTicker(time.Second * time.Duration(vServerParam.StoreInterval))
 			defer ticker.Stop()
 			for {
 				<-ticker.C
-				filesave.SaveMetric(gauge, metric, vServerParam.FileStorePath)
+				if vServerParam.OnFile {
+					filesave.SaveMetric(gauge, metric, vServerParam.FileStorePath)
+				}
+				if vServerParam.OnDSN {
+					dbstore.SaveMetric(gauge, metric, db)
+				}
 			}
-		}(gauge, metric, vServerParam)
-	}
+		}(gauge, metric, db, vServerParam)
 
-	// Подключение к БД
-
-	fmt.Printf("DSN: %v\n", vServerParam.DSN)
-	db, err := sql.Open("pgx", vServerParam.DSN)
-	if err != nil {
-		logmy.OutLog(err)
-		fmt.Printf("Error connect DB: %v\n", err)
 	}
-	defer db.Close()
 
 	r := chi.NewRouter()
 	r.Use(middleware.StripSlashes)
-	r.Use(handler.SavePage(gauge, metric, LenArr, vServerParam)) // автосохранение данных
+
+	if vServerParam.OnFile || vServerParam.OnDSN { // автосохранение данных
+		r.Use(handler.SavePage(gauge, metric, db, vServerParam))
+	}
 
 	// определяем хендлер
 	r.Route("/", func(r chi.Router) {
