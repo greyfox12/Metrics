@@ -46,7 +46,7 @@ func CreateDB(db *sql.DB) error {
 }
 
 // Прочитать данные из DB
-func GetDbGauge(db *sql.DB, id string) (float64, error) {
+func GetDBGauge(db *sql.DB, id string) (float64, error) {
 	var mgauge float64
 
 	rows, err := db.Query("SELECT get_gauge($1) gauge", id)
@@ -70,7 +70,7 @@ func GetDbGauge(db *sql.DB, id string) (float64, error) {
 	return mgauge, nil
 }
 
-func GetDbCounter(db *sql.DB, id string) (int64, error) {
+func GetDBCounter(db *sql.DB, id string) (int64, error) {
 	var mcounter int64
 
 	rows, err := db.Query("SELECT get_counter($1) counter", id)
@@ -95,7 +95,7 @@ func GetDbCounter(db *sql.DB, id string) (int64, error) {
 }
 
 // Записать данные в DB
-func SetDbGauge(db *sql.DB, id string, par float64) (float64, error) {
+func SetDBGauge(db *sql.DB, id string, par float64) (float64, error) {
 	var mgauge float64
 	//	fmt.Printf("id=%v, par=%v\n", id, par)
 	rows, err := db.Query("SELECT set_gauge($1, $2) gauge", id, par)
@@ -122,7 +122,7 @@ func SetDbGauge(db *sql.DB, id string, par float64) (float64, error) {
 	return mgauge, nil
 }
 
-func SetDbCounter(db *sql.DB, id string, par int64) (int64, error) {
+func SetDBCounter(db *sql.DB, id string, par int64) (int64, error) {
 	var mcounter int64
 
 	rows, err := db.Query("SELECT set_counter($1, $2) counter", id, par)
@@ -159,7 +159,7 @@ func SaveMetric(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, db
 		if err != nil {
 			continue
 		}
-		if _, err := SetDbGauge(db, val, v); err != nil {
+		if _, err := SetDBGauge(db, val, v); err != nil {
 			logmy.OutLog(err)
 			continue
 		}
@@ -170,7 +170,7 @@ func SaveMetric(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, db
 		if err != nil {
 			continue
 		}
-		if _, err := SetDbCounter(db, val, v); err != nil {
+		if _, err := SetDBCounter(db, val, v); err != nil {
 			logmy.OutLog(err)
 			continue
 		}
