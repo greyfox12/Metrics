@@ -23,7 +23,8 @@ func CreateDB(db *sql.DB) error {
 		fmt.Printf("Currect dirlist=%v\n", e.Name())
 	}
 
-	file, err := os.Open("../../internal/server/dbstore/Script.sql")
+	file, err := os.Open("./internal/server/dbstore/Script.sql")
+	//	file, err := os.Open("../../internal/server/dbstore/Script.sql")
 	if err != nil {
 		logmy.OutLog(err)
 		return error(err)
