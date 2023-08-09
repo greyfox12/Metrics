@@ -18,6 +18,10 @@ func CreateDB(db *sql.DB) error {
 
 	pwd, _ := os.Getwd()
 	fmt.Printf("Currect pass=%v\n", pwd)
+	ent, _ := os.ReadDir("./")
+	for _, e := range ent {
+		fmt.Printf("Currect dirlist=%v\n", e.Name())
+	}
 
 	file, err := os.Open("../../internal/server/dbstore/Script.sql")
 	if err != nil {
