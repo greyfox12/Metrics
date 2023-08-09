@@ -16,7 +16,7 @@ func CreateDB(db *sql.DB) error {
 	var Script string
 	var errdb error
 
-	pwd, err := os.Getwd()
+	pwd, _ := os.Getwd()
 	fmt.Printf("Currect pass=%v\n", pwd)
 
 	file, err := os.Open("../../internal/server/dbstore/Script.sql")
