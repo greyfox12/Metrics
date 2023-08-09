@@ -65,9 +65,9 @@ func Param(sp *ServerParam) ServerParam {
 		fmt.Printf("LookupEnv(DATABASE_DSN)=%v\n", tStr)
 		cfg.DSN = tStr
 	}
-	if cfg.DSN == "" {
-		cfg.DSN = sp.DSN
-	}
+	//	if cfg.DSN == "" {
+	//		cfg.DSN = sp.DSN
+	//	}
 
 	// Определяю где храним данные
 	cfg.OnDSN = cfg.DSN != ""

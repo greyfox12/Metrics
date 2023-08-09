@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/greyfox12/Metrics/internal/server/logmy"
 	"github.com/greyfox12/Metrics/internal/server/storage"
@@ -15,6 +16,7 @@ import (
 func CreateDB(db *sql.DB) error {
 	var Script string
 	var errdb error
+	var path string
 
 	pwd, _ := os.Getwd()
 	fmt.Printf("Currect pass=%v\n", pwd)
@@ -23,7 +25,13 @@ func CreateDB(db *sql.DB) error {
 		fmt.Printf("Currect dirlist=%v\n", e.Name())
 	}
 
-	file, err := os.Open("./internal/server/dbstore/Script.sql")
+	if strings.HasPrefix(pwd, "c:\\GoYandex") {
+		path = "../../internal/server/dbstore/Script.sql"
+	} else {
+		path = "./internal/server/dbstore/Script.sql"
+	}
+
+	file, err := os.Open(path)
 	//	file, err := os.Open("../../internal/server/dbstore/Script.sql")
 	if err != nil {
 		logmy.OutLog(err)
