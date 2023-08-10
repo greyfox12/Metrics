@@ -138,18 +138,31 @@ func ActPost(buf []byte, adrstr string) error {
 		return error(err)
 	}
 	req.Header.Set("Content-Encoding", "gzip")
+	req.Header.Add("Accept-Encoding", "gzip")
 	req.Header.Add("Content-Type", "application/json")
 	response, err := client.Do(req)
 	if err != nil {
 		return error(err)
 	}
 
+	fmt.Printf("Head response: %v\n", response.Header)
 	body, err := io.ReadAll(response.Body)
 	defer response.Body.Close()
 
 	if err != nil {
 		return error(err)
 	}
+
+	if response.Header.Get("Content-Encoding") == "gzip" || response.Header.Get("Content-Encoding") == "flate" {
+		fmt.Printf("Header gzip \n")
+		body, err = compress.Decompress(body, "flate") //response.Header.Get("Content-Encoding"))
+		if err != nil {
+			fmt.Printf("Error ungzip %v\n", err)
+			return error(err)
+		}
+
+	}
+
 	fmt.Println("response Body:", string(body))
 	return nil
 }

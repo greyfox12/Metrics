@@ -16,7 +16,7 @@ func PostUpdates(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, m
 	return func(res http.ResponseWriter, req *http.Request) {
 
 		fmt.Printf("PostUpdates \n")
-		body := make([]byte, 1000)
+		body := make([]byte, 10000)
 		var err error
 		var resp []storage.Metrics // Ответ клиенту
 		var JSONMetrics []storage.Metrics
@@ -44,7 +44,7 @@ func PostUpdates(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, m
 		bodyS := body[0:n]
 
 		if req.Header.Get("Content-Encoding") == "gzip" || req.Header.Get("Content-Encoding") == "flate" {
-			//			fmt.Printf("Header gzip \n")
+			fmt.Printf("Header gzip \n")
 			bodyS, err = compress.Decompress(body, req.Header.Get("Content-Encoding"))
 			if err != nil {
 				fmt.Printf("Error ungzip %v\n", err)
@@ -83,7 +83,22 @@ func PostUpdates(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, m
 
 		}
 		fmt.Printf("response: %v \n", string(buf))
+
 		res.Header().Set("Content-Type", "application/json")
+		// Сжимю, если нужно
+		/*		if req.Header.Get("Content-Encoding") == "gzip" || req.Header.Get("Content-Encoding") == "flate" {
+					fmt.Printf("Compress response: \n")
+					buf, err = compress.Compress(buf)
+					if err != nil {
+						fmt.Printf("PostUpdates: Error Compress response: %v \n", err)
+						res.WriteHeader(http.StatusBadRequest)
+						return
+
+					}
+					//		res.Header().Set("Accept-Encoding", "gzip")
+					res.Header().Set("Content-Encoding", "gzip")
+				}
+		*/ //		res.Header().Set("Accept-Encoding", "gzip")
 		res.WriteHeader(http.StatusOK)
 		res.Write(buf)
 	}
