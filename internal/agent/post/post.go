@@ -99,18 +99,18 @@ func postMess(st Metrics, adrstr string) error {
 // Вывод слайса
 func postUpdates(stArr []Metrics, adrstr string) error {
 	var err error
-	var buf []byte
+	//	var buf []byte
 
-	for _, st := range stArr {
-		jsonData, err := json.Marshal(st)
-		if err != nil {
-			return error(err)
-		}
-		buf = append(buf, jsonData...)
-		//		buf = append(buf, []byte{'\n'}...)
+	//	for _, st := range stArr {
+	jsonData, err := json.Marshal(stArr)
+	if err != nil {
+		return error(err)
 	}
-
-	err = ActPost(buf, adrstr)
+	//		buf = append(buf, jsonData...)
+	//		buf = append(buf, []byte{'\n'}...)
+	//	}
+	//	fmt.Println("jsonData:", jsonData)
+	err = ActPost(jsonData, adrstr)
 	if err != nil {
 		return error(err)
 	}
@@ -144,12 +144,12 @@ func ActPost(buf []byte, adrstr string) error {
 		return error(err)
 	}
 
-	_, err = io.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	defer response.Body.Close()
 
 	if err != nil {
 		return error(err)
 	}
-	//	fmt.Println("response Body:", body)
+	fmt.Println("response Body:", string(body))
 	return nil
 }

@@ -18,7 +18,8 @@ func PostUpdates(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, m
 		fmt.Printf("PostUpdates \n")
 		body := make([]byte, 1000)
 		var err error
-		var resp []byte // Ответ клиенту
+		var resp []storage.Metrics // Ответ клиенту
+		var JSONMetrics []storage.Metrics
 
 		if req.Method != http.MethodPost {
 			res.WriteHeader(http.StatusMethodNotAllowed)
@@ -53,89 +54,87 @@ func PostUpdates(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, m
 		}
 		fmt.Printf("PostUpdates: n =%v, Body: %v \n", n, string(bodyS))
 
-		for _, messJSON := range strings.Split(string(bodyS), "}") {
+		err = json.Unmarshal(bodyS, &JSONMetrics)
+		if err != nil {
+			fmt.Printf("Error decode %v \n", err)
+			logmy.OutLog(err)
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		fmt.Printf("PostUpdates JSONMetrics:  %v \n", JSONMetrics)
 
-			if messJSON == "" {
-				continue
-			}
-			messJSON = messJSON + "}"
+		for _, messJSON := range JSONMetrics {
+
 			fmt.Printf(" %v \n", messJSON)
 			mess, ok := decodeMess(mgauge, mmetric, maxlen, messJSON)
 			if ok != http.StatusOK {
 				res.WriteHeader(ok)
 				return
 			}
-			resp = append(resp, mess...)
+			resp = append(resp, *mess)
 		}
 
+		// Ответ в JSON
+		buf, err := json.Marshal(resp)
+		if err != nil {
+			res.WriteHeader(http.StatusBadRequest)
+			return
+
+		}
 		res.Header().Set("Content-Type", "application/json")
 		res.WriteHeader(http.StatusOK)
-		res.Write([]byte(resp))
+		res.Write(buf)
 	}
 }
 
-func decodeMess(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, maxlen int, messJSON string) ([]byte, int) {
+func decodeMess(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, maxlen int, messJSON storage.Metrics) (*storage.Metrics, int) {
 	var err error
-	var vMetrics storage.Metrics
-	var jsonData []byte
 
-	err = json.Unmarshal([]byte(messJSON), &vMetrics)
-	if err != nil {
-		fmt.Printf("Error decode %v \n", err)
-		logmy.OutLog(err)
-		return nil, http.StatusBadRequest
-	}
 	//		fmt.Printf("vMetrics: %v \n", vMetrics)
-
-	if vMetrics.ID == "" || (vMetrics.MType != "gauge" && vMetrics.MType != "counter") || len(vMetrics.ID) > 100 {
+	if messJSON.ID == "" || (messJSON.MType != "gauge" && messJSON.MType != "counter") || len(messJSON.ID) > 100 {
 		logmy.OutLog(err)
 		return nil, http.StatusBadRequest
 	}
 
-	if vMetrics.MType == "gauge" {
+	if messJSON.MType == "gauge" {
 		// контроль длинны карты
-		if _, ok := mgauge.Get(vMetrics.ID); ok != nil && mgauge.Len() > maxlen {
+		if _, ok := mgauge.Get(messJSON.ID); ok != nil && mgauge.Len() > maxlen {
 			logmy.OutLog(err)
 			return nil, http.StatusBadRequest
 		}
 
-		if vMetrics.Value == nil {
-			vMetrics.Value = new(float64)
+		if messJSON.Value == nil {
+			messJSON.Value = new(float64)
 		}
 
 		// Добавляю новую метрику
-		mgauge.Set(vMetrics.ID, *vMetrics.Value)
+		mgauge.Set(messJSON.ID, *messJSON.Value)
 		// Выбираю новое значение метрики
 
-		if *vMetrics.Value, err = mgauge.Get(vMetrics.ID); err != nil {
+		if *messJSON.Value, err = mgauge.Get(messJSON.ID); err != nil {
 			logmy.OutLog(err)
 			return nil, http.StatusBadRequest
 		}
 	}
 
-	if vMetrics.MType == "counter" {
+	if messJSON.MType == "counter" {
 		// контроль длинны карты
-		if _, ok := mmetric.Get(vMetrics.ID); ok != nil && mmetric.Len() > maxlen {
+		if _, ok := mmetric.Get(messJSON.ID); ok != nil && mmetric.Len() > maxlen {
 			logmy.OutLog(err)
 			return nil, http.StatusBadRequest
 		}
-		if vMetrics.Delta == nil {
-			vMetrics.Delta = new(int64)
+		if messJSON.Delta == nil {
+			messJSON.Delta = new(int64)
 		}
 		// Добавляю новую метрику
-		mmetric.Set(vMetrics.ID, *vMetrics.Delta)
+		mmetric.Set(messJSON.ID, *messJSON.Delta)
 
 		// Выбираю новое значение метрики
-		if *vMetrics.Delta, err = mmetric.Get(vMetrics.ID); err != nil {
+		if *messJSON.Delta, err = mmetric.Get(messJSON.ID); err != nil {
 			logmy.OutLog(err)
 			return nil, http.StatusBadRequest
 		}
 	}
 
-	if jsonData, err = json.Marshal(vMetrics); err != nil {
-		logmy.OutLog(err)
-		return nil, http.StatusBadRequest
-	}
-
-	return jsonData, http.StatusOK
+	return &messJSON, http.StatusOK
 }
