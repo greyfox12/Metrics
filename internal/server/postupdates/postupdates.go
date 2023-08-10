@@ -15,7 +15,7 @@ import (
 func PostUpdates(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, maxlen int, cfg getparam.ServerParam) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 
-		//		fmt.Printf("GaugePage \n")
+		fmt.Printf("PostUpdates \n")
 		body := make([]byte, 1000)
 		var err error
 		var resp []byte // Ответ клиенту
@@ -30,9 +30,6 @@ func PostUpdates(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, m
 			res.WriteHeader(http.StatusBadRequest)
 			return
 		}
-
-		//		fmt.Printf("req.Body: %v \n", req.Body)
-		//		fmt.Printf("req.Header: %v \n", req.Header.Get("Content-Encoding"))
 
 		n, err := req.Body.Read(body)
 		if err != nil && n <= 0 {
@@ -54,7 +51,7 @@ func PostUpdates(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, m
 				return
 			}
 		}
-		//		fmt.Printf("n =%v, Body: %v \n", n, bodyS)
+		fmt.Printf("PostUpdates: n =%v, Body: %v \n", n, bodyS)
 
 		for _, messJSON := range strings.Split(string(bodyS), "}") {
 
