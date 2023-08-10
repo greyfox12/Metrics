@@ -39,30 +39,48 @@ type Metrics struct {
 	Value *float64 `json:"value,omitempty"` // значение метрики в случае передачи gauge
 }
 
-func (c Client) PostCounter(ga map[int]GaugeMetric, co map[int]CounterMetric) error {
+func (c Client) PostCounter(ga map[int]GaugeMetric, co map[int]CounterMetric, updateTyp string) error {
 	//	fmt.Printf("Time: %v\n", time.Now().Unix())
+	var stArr []Metrics
 
-	adrstr := fmt.Sprintf("%s/update", c.url)
+	adrstr := fmt.Sprintf("%s/%s", c.url, updateTyp)
+
 	for _, val := range ga {
 		st := Metrics{ID: val.Name, MType: "gauge", Value: (*float64)(&val.Val)}
+		stArr = append(stArr, st)
 
-		if ok := postMess(st, adrstr); ok != nil {
-			fmt.Printf("Error post: %v, %v\n", st, ok)
+		if updateTyp == "update" {
+			if ok := postMess(st, adrstr); ok != nil {
+				fmt.Printf("Error post: %v, %v\n", st, ok)
+			}
 		}
 	}
 
 	for _, val := range co {
 
 		st := Metrics{ID: val.Name, MType: "counter", Delta: (*int64)(&val.Val)}
+		stArr = append(stArr, st)
 
-		if ok := postMess(st, adrstr); ok != nil {
-			fmt.Printf("Error post: %v, %v\n", st, ok)
+		if updateTyp == "update" {
+			if ok := postMess(st, adrstr); ok != nil {
+				fmt.Printf("Error post: %v, %v\n", st, ok)
+			}
 		}
+	}
+
+	if updateTyp == "update" {
+		return nil
+	}
+
+	//	fmt.Printf("stArr: %v\n", stArr)
+	if ok := postUpdates(stArr, adrstr); ok != nil {
+		fmt.Printf("Error posts:  %v\n", ok)
 	}
 
 	return nil
 }
 
+// Вывод по одной записи
 func postMess(st Metrics, adrstr string) error {
 	var err error
 	jsonData, err := json.Marshal(st)
@@ -70,8 +88,41 @@ func postMess(st Metrics, adrstr string) error {
 		return error(err)
 	}
 
-	//		fmt.Printf("Ответ сервера: %v\n", string(jsonData))
-	jsonZip, err := compress.Compress(jsonData)
+	err = ActPost(jsonData, adrstr)
+	if err != nil {
+		return error(err)
+	}
+	//	fmt.Println("response Body:", body)
+	return nil
+}
+
+// Вывод слайса
+func postUpdates(stArr []Metrics, adrstr string) error {
+	var err error
+	var buf []byte
+
+	for _, st := range stArr {
+		jsonData, err := json.Marshal(st)
+		if err != nil {
+			return error(err)
+		}
+		buf = append(buf, jsonData...)
+		//		buf = append(buf, []byte{'\n'}...)
+	}
+
+	err = ActPost(buf, adrstr)
+	if err != nil {
+		return error(err)
+	}
+	//	fmt.Println("response Body:", body)
+	return nil
+}
+
+func ActPost(buf []byte, adrstr string) error {
+
+	fmt.Printf("JSON: %v\n", string(buf))
+
+	jsonZip, err := compress.Compress(buf)
 	//		fmt.Printf("jsonZip: %+v\n", jsonZip)
 	if err != nil {
 		return error(err)

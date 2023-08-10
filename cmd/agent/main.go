@@ -69,7 +69,7 @@ func main() {
 		ListCounter[1] = post.CounterMetric{Name: "PollCount", Val: post.Counter(PollCount)}
 
 		if int(PollCount)%(Config.ReportInterval/Config.PollInterval) == 0 {
-			if ok := client.PostCounter(ListGauge, ListCounter); ok != nil {
+			if ok := client.PostCounter(ListGauge, ListCounter, "updates"); ok != nil {
 				fmt.Printf("Error Post metrics: %v\n", ok)
 			}
 		}

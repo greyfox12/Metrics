@@ -19,11 +19,11 @@ func CreateDB(db *sql.DB) error {
 	var path string
 
 	pwd, _ := os.Getwd()
-	fmt.Printf("Currect pass=%v\n", pwd)
-	ent, _ := os.ReadDir("./")
-	for _, e := range ent {
-		fmt.Printf("Currect dirlist=%v\n", e.Name())
-	}
+	//	fmt.Printf("Currect pass=%v\n", pwd)
+	//	ent, _ := os.ReadDir("./")
+	//	for _, e := range ent {
+	//		fmt.Printf("Currect dirlist=%v\n", e.Name())
+	//	}
 
 	if strings.HasPrefix(pwd, "c:\\GoYandex") {
 		path = "../../internal/server/dbstore/Script.sql"
@@ -32,7 +32,6 @@ func CreateDB(db *sql.DB) error {
 	}
 
 	file, err := os.Open(path)
-	//	file, err := os.Open("../../internal/server/dbstore/Script.sql")
 	if err != nil {
 		logmy.OutLog(err)
 		return error(err)

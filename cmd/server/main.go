@@ -18,6 +18,7 @@ import (
 	"github.com/greyfox12/Metrics/internal/server/getping"
 	"github.com/greyfox12/Metrics/internal/server/handler"
 	"github.com/greyfox12/Metrics/internal/server/logmy"
+	"github.com/greyfox12/Metrics/internal/server/postupdates"
 	"github.com/greyfox12/Metrics/internal/server/storage"
 )
 
@@ -111,6 +112,7 @@ func main() {
 		r.Get("/ping", logmy.RequestLogger(getping.GetPing(db)))
 		r.Get("/*", logmy.RequestLogger(handler.ErrorPage))
 
+		r.Post("/updates", logmy.RequestLogger(postupdates.PostUpdates(gauge, metric, LenArr, vServerParam)))
 		r.Post("/update", logmy.RequestLogger(handler.PostPage(gauge, metric, LenArr, vServerParam)))
 		r.Post("/value", logmy.RequestLogger(handler.OnePostMetricPage(gauge, metric)))
 		r.Post("/update/gauge/{metricName}/{metricVal}", logmy.RequestLogger(handler.GaugePage(gauge, metric, LenArr, vServerParam)))

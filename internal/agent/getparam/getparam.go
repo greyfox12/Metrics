@@ -12,12 +12,14 @@ const (
 	DefServerAdr      = "http://localhost:8080"
 	DefPollInterval   = 2
 	DefReportInterval = 10
+	DefPostUpdates    = true
 )
 
 type TConfig struct {
 	Address        string
 	ReportInterval int
 	PollInterval   int
+	PostUpdates    bool
 }
 
 type NetAddress string
@@ -81,6 +83,7 @@ func Param() TConfig {
 
 	flag.IntVar(&cfg.PollInterval, "p", cfg.PollInterval, "Pool interval sec.")
 	flag.IntVar(&cfg.ReportInterval, "r", cfg.ReportInterval, "Report interval sec.")
+	flag.BoolVar(&cfg.PostUpdates, "u", DefPostUpdates, "Updates mode post")
 	flag.Parse()
 
 	if !strings.HasPrefix(cfg.Address, "http://") {
