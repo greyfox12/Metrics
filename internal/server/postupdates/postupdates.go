@@ -77,10 +77,12 @@ func PostUpdates(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, m
 		// Ответ в JSON
 		buf, err := json.Marshal(resp)
 		if err != nil {
+			fmt.Printf("PostUpdates: Error code response: %v \n", err)
 			res.WriteHeader(http.StatusBadRequest)
 			return
 
 		}
+		fmt.Printf("response: %v \n", string(buf))
 		res.Header().Set("Content-Type", "application/json")
 		res.WriteHeader(http.StatusOK)
 		res.Write(buf)
