@@ -294,6 +294,7 @@ func OnePostMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCoun
 
 		//		fmt.Printf("OneMetricPage \n")
 		var vMetrics storage.Metrics
+
 		if req.Method != http.MethodPost {
 			res.WriteHeader(http.StatusMethodNotAllowed)
 			return

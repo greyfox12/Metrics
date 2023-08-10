@@ -51,7 +51,7 @@ func PostUpdates(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, m
 				return
 			}
 		}
-		fmt.Printf("PostUpdates: n =%v, Body: %v \n", n, bodyS)
+		fmt.Printf("PostUpdates: n =%v, Body: %v \n", n, string(bodyS))
 
 		for _, messJSON := range strings.Split(string(bodyS), "}") {
 
