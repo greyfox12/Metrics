@@ -100,7 +100,7 @@ func PostUpdates(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, m
 				}
 		*/ //		res.Header().Set("Accept-Encoding", "gzip")
 		res.WriteHeader(http.StatusOK)
-		res.Write(buf)
+		res.Write(nil)
 	}
 }
 

@@ -44,7 +44,7 @@ func Decompress(data []byte, typCompress string) ([]byte, error) {
 		//		defer r.Close()
 		//	case "gzip":
 		r, err = gzip.NewReader(bytes.NewReader(data))
-		//defer r.Close()
+		//	defer r.Close()
 		if err != nil {
 			return nil, fmt.Errorf("failed gzip.NewReader: %v", err)
 		}

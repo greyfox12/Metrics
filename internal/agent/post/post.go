@@ -160,7 +160,6 @@ func ActPost(buf []byte, adrstr string) error {
 			fmt.Printf("Error ungzip %v\n", err)
 			return error(err)
 		}
-
 	}
 
 	fmt.Println("response Body:", string(body))
