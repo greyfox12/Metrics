@@ -65,6 +65,7 @@ func PostUpdates(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, m
 		}
 		fmt.Printf("PostUpdates JSONMetrics:  %v \n", JSONMetrics)
 
+		var LastMess storage.Metrics
 		for _, messJSON := range JSONMetrics {
 
 			fmt.Printf(" %v \n", messJSON)
@@ -73,7 +74,7 @@ func PostUpdates(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, m
 				res.WriteHeader(ok)
 				return
 			}
-
+			LastMess = *mess
 			var Pr int = -1
 			for IndexFunc, v := range resp {
 				if mess.ID == v.ID {
@@ -97,7 +98,7 @@ func PostUpdates(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, m
 		}
 
 		// Ответ в JSON
-		buf, err := json.Marshal(resp)
+		buf, err := json.Marshal(LastMess)
 		if err != nil {
 			fmt.Printf("PostUpdates: Error code response: %v \n", err)
 			res.WriteHeader(http.StatusBadRequest)
@@ -123,15 +124,15 @@ func PostUpdates(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, m
 		*/ //		res.Header().Set("Accept-Encoding", "gzip")
 
 		// Проверка что не нравится
-		var test []storage.Metrics
-		err = json.Unmarshal(buf, &test)
-		if err != nil {
-			fmt.Printf("Error decode %v \n", err)
-			logmy.OutLog(err)
-			res.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
+		/*		var test []storage.Metrics
+				err = json.Unmarshal(buf, &test)
+				if err != nil {
+					fmt.Printf("Error decode %v \n", err)
+					logmy.OutLog(err)
+					res.WriteHeader(http.StatusBadRequest)
+					return
+				}
+		*/
 		res.WriteHeader(http.StatusOK)
 		res.Write(buf)
 	}
