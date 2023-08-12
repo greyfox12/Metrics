@@ -3,7 +3,6 @@ package postupdates
 import (
 	"encoding/json"
 	"fmt"
-	"math"
 	"net/http"
 	"strings"
 
@@ -19,8 +18,10 @@ func PostUpdates(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, m
 		fmt.Printf("PostUpdates \n")
 		body := make([]byte, 10000)
 		var err error
-		var resp []storage.Metrics // Ответ клиенту
+		//	var resp []storage.Metrics // Ответ клиенту
 		var JSONMetrics []storage.Metrics
+
+		resp := make([]storage.Metrics, 0)
 
 		if req.Method != http.MethodPost {
 			res.WriteHeader(http.StatusMethodNotAllowed)
@@ -72,12 +73,27 @@ func PostUpdates(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, m
 				res.WriteHeader(ok)
 				return
 			}
-			// Округлю
-			if mess.MType == "gauge" {
-				a := math.Trunc(*mess.Value)
-				mess.Value = &a
+
+			var Pr int = -1
+			for IndexFunc, v := range resp {
+				if mess.ID == v.ID {
+					Pr = IndexFunc
+				}
 			}
-			resp = append(resp, *mess)
+			if Pr >= 0 {
+				resp[Pr] = *mess
+			} else {
+				resp = append(resp, *mess)
+			}
+			//			resp[mess.ID] = *mess
+
+			/*			// Округлю
+						if mess.MType == "gauge" {
+							a := math.Trunc(*mess.Value)
+							mess.Value = &a
+						}
+						resp = append(resp, *mess)
+			*/
 		}
 
 		// Ответ в JSON
