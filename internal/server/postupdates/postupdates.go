@@ -3,6 +3,7 @@ package postupdates
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"net/http"
 	"strings"
 
@@ -71,6 +72,11 @@ func PostUpdates(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, m
 				res.WriteHeader(ok)
 				return
 			}
+			// Округлю
+			if mess.MType == "gauge" {
+				a := math.Trunc(*mess.Value)
+				mess.Value = &a
+			}
 			resp = append(resp, *mess)
 		}
 
@@ -99,6 +105,17 @@ func PostUpdates(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, m
 					res.Header().Set("Content-Encoding", "gzip")
 				}
 		*/ //		res.Header().Set("Accept-Encoding", "gzip")
+
+		// Проверка что не нравится
+		var test []storage.Metrics
+		err = json.Unmarshal(buf, &test)
+		if err != nil {
+			fmt.Printf("Error decode %v \n", err)
+			logmy.OutLog(err)
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
 		res.WriteHeader(http.StatusOK)
 		res.Write(buf)
 	}
