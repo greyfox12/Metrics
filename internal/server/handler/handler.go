@@ -15,6 +15,7 @@ import (
 	"github.com/greyfox12/Metrics/internal/server/filesave"
 	"github.com/greyfox12/Metrics/internal/server/getparam"
 	"github.com/greyfox12/Metrics/internal/server/logmy"
+	"github.com/greyfox12/Metrics/internal/server/postupdates"
 	"github.com/greyfox12/Metrics/internal/server/storage"
 )
 
@@ -70,56 +71,61 @@ func PostPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, maxl
 			return
 		}
 		//		fmt.Printf("vMetrics: %v \n", vMetrics)
-
-		if vMetrics.ID == "" || (vMetrics.MType != "gauge" && vMetrics.MType != "counter") || len(vMetrics.ID) > 100 {
-			res.WriteHeader(http.StatusBadRequest)
+		_, ok := postupdates.DecodeMess(mgauge, mmetric, maxlen, vMetrics)
+		if ok != http.StatusOK {
+			res.WriteHeader(ok)
 			return
 		}
 
-		if vMetrics.MType == "gauge" {
-			// контроль длинны карты
-			if _, ok := mgauge.Get(vMetrics.ID); ok != nil && mgauge.Len() > maxlen {
-				res.WriteHeader(http.StatusBadRequest)
-				return
-			}
+		/*		if vMetrics.ID == "" || (vMetrics.MType != "gauge" && vMetrics.MType != "counter") || len(vMetrics.ID) > 100 {
+					res.WriteHeader(http.StatusBadRequest)
+					return
+				}
 
-			if vMetrics.Value == nil {
+				if vMetrics.MType == "gauge" {
+					// контроль длинны карты
+					if _, ok := mgauge.Get(vMetrics.ID); ok != nil && mgauge.Len() > maxlen {
+						res.WriteHeader(http.StatusBadRequest)
+						return
+					}
 
-				vMetrics.Value = new(float64)
-			}
+					if vMetrics.Value == nil {
 
-			// Добавляю новую метрику
-			mgauge.Set(vMetrics.ID, *vMetrics.Value)
-			// Выбираю новое значение метрики
-			var ok error
-			if *vMetrics.Value, ok = mgauge.Get(vMetrics.ID); ok != nil {
-				res.WriteHeader(http.StatusBadRequest)
-				return
-			}
-		}
+						vMetrics.Value = new(float64)
+					}
 
-		if vMetrics.MType == "counter" {
-			// контроль длинны карты
-			if _, ok := mmetric.Get(vMetrics.ID); ok != nil && mmetric.Len() > maxlen {
-				res.WriteHeader(http.StatusBadRequest)
-				return
-			}
-			if vMetrics.Delta == nil {
-				vMetrics.Delta = new(int64)
-				//				res.WriteHeader(http.StatusBadRequest)
-				//				return
-			}
-			// Добавляю новую метрику
-			mmetric.Set(vMetrics.ID, *vMetrics.Delta)
+					// Добавляю новую метрику
+					mgauge.Set(vMetrics.ID, *vMetrics.Value)
+					// Выбираю новое значение метрики
+					var ok error
+					if *vMetrics.Value, ok = mgauge.Get(vMetrics.ID); ok != nil {
+						res.WriteHeader(http.StatusBadRequest)
+						return
+					}
+				}
 
-			// Выбираю новое значение метрики
-			var ok error
-			if *vMetrics.Delta, ok = mmetric.Get(vMetrics.ID); ok != nil {
-				res.WriteHeader(http.StatusBadRequest)
-				return
-			}
-		}
+				if vMetrics.MType == "counter" {
+					// контроль длинны карты
+					if _, ok := mmetric.Get(vMetrics.ID); ok != nil && mmetric.Len() > maxlen {
+						res.WriteHeader(http.StatusBadRequest)
+						return
+					}
+					if vMetrics.Delta == nil {
+						vMetrics.Delta = new(int64)
+						//				res.WriteHeader(http.StatusBadRequest)
+						//				return
+					}
+					// Добавляю новую метрику
+					mmetric.Set(vMetrics.ID, *vMetrics.Delta)
 
+					// Выбираю новое значение метрики
+					var ok error
+					if *vMetrics.Delta, ok = mmetric.Get(vMetrics.ID); ok != nil {
+						res.WriteHeader(http.StatusBadRequest)
+						return
+					}
+				}
+		*/
 		jsonData, err := json.Marshal(vMetrics)
 		if err != nil {
 			res.WriteHeader(http.StatusBadRequest)

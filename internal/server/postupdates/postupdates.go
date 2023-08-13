@@ -18,10 +18,9 @@ func PostUpdates(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, m
 		fmt.Printf("PostUpdates \n")
 		body := make([]byte, 10000)
 		var err error
-		//	var resp []storage.Metrics // Ответ клиенту
-		var JSONMetrics []storage.Metrics
 
-		resp := make([]storage.Metrics, 0)
+		var JSONMetrics []storage.Metrics
+		var LastMess storage.Metrics
 
 		if req.Method != http.MethodPost {
 			res.WriteHeader(http.StatusMethodNotAllowed)
@@ -65,36 +64,15 @@ func PostUpdates(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, m
 		}
 		fmt.Printf("PostUpdates JSONMetrics:  %v \n", JSONMetrics)
 
-		var LastMess storage.Metrics
 		for _, messJSON := range JSONMetrics {
 
 			fmt.Printf(" %v \n", messJSON)
-			mess, ok := decodeMess(mgauge, mmetric, maxlen, messJSON)
+			mess, ok := DecodeMess(mgauge, mmetric, maxlen, messJSON)
 			if ok != http.StatusOK {
 				res.WriteHeader(ok)
 				return
 			}
 			LastMess = *mess
-			var Pr int = -1
-			for IndexFunc, v := range resp {
-				if mess.ID == v.ID {
-					Pr = IndexFunc
-				}
-			}
-			if Pr >= 0 {
-				resp[Pr] = *mess
-			} else {
-				resp = append(resp, *mess)
-			}
-			//			resp[mess.ID] = *mess
-
-			/*			// Округлю
-						if mess.MType == "gauge" {
-							a := math.Trunc(*mess.Value)
-							mess.Value = &a
-						}
-						resp = append(resp, *mess)
-			*/
 		}
 
 		// Ответ в JSON
@@ -103,7 +81,6 @@ func PostUpdates(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, m
 			fmt.Printf("PostUpdates: Error code response: %v \n", err)
 			res.WriteHeader(http.StatusBadRequest)
 			return
-
 		}
 		fmt.Printf("response: %v \n", string(buf))
 
@@ -123,22 +100,13 @@ func PostUpdates(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, m
 				}
 		*/ //		res.Header().Set("Accept-Encoding", "gzip")
 
-		// Проверка что не нравится
-		/*		var test []storage.Metrics
-				err = json.Unmarshal(buf, &test)
-				if err != nil {
-					fmt.Printf("Error decode %v \n", err)
-					logmy.OutLog(err)
-					res.WriteHeader(http.StatusBadRequest)
-					return
-				}
-		*/
 		res.WriteHeader(http.StatusOK)
 		res.Write(buf)
 	}
 }
 
-func decodeMess(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, maxlen int, messJSON storage.Metrics) (*storage.Metrics, int) {
+// распаковываю JSON и записываю с память
+func DecodeMess(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, maxlen int, messJSON storage.Metrics) (*storage.Metrics, int) {
 	var err error
 
 	//		fmt.Printf("vMetrics: %v \n", vMetrics)
