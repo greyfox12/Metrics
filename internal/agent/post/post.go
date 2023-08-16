@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"time"
 
@@ -74,7 +75,11 @@ func (c Client) PostCounter(ga map[int]GaugeMetric, co map[int]CounterMetric, up
 
 	//	fmt.Printf("stArr: %v\n", stArr)
 	if ok := postUpdates(stArr, adrstr); ok != nil {
+
 		fmt.Printf("Error posts:  %v\n", ok)
+		if _, yes := ok.(net.Error); yes {
+			return ok
+		}
 	}
 
 	return nil
@@ -88,7 +93,7 @@ func postMess(st Metrics, adrstr string) error {
 		return error(err)
 	}
 
-	err = ActPost(jsonData, adrstr)
+	err = Resend(jsonData, adrstr)
 	if err != nil {
 		return error(err)
 	}
@@ -99,18 +104,14 @@ func postMess(st Metrics, adrstr string) error {
 // Вывод слайса
 func postUpdates(stArr []Metrics, adrstr string) error {
 	var err error
-	//	var buf []byte
 
-	//	for _, st := range stArr {
 	jsonData, err := json.Marshal(stArr)
 	if err != nil {
 		return error(err)
 	}
-	//		buf = append(buf, jsonData...)
-	//		buf = append(buf, []byte{'\n'}...)
-	//	}
+
 	//	fmt.Println("jsonData:", jsonData)
-	err = ActPost(jsonData, adrstr)
+	err = Resend(jsonData, adrstr)
 	if err != nil {
 		return error(err)
 	}
@@ -118,6 +119,28 @@ func postUpdates(stArr []Metrics, adrstr string) error {
 	return nil
 }
 
+// Повторяю при ошибках вывод
+func Resend(buf []byte, adrstr string) error {
+	for i := 1; i <= 7; i += 2 {
+		if ok := ActPost(buf, adrstr); ok != nil {
+
+			fmt.Printf("Error posts:  %v\n", ok)
+			if _, yes := ok.(net.Error); yes {
+				//			if errors.Is(ok, syscall.ECONNREFUSED) {
+				if i > 5 {
+					return ok
+				}
+				fmt.Printf("Pause: %v sec\n", i)
+				time.Sleep(time.Duration(i) * time.Second)
+			}
+		} else {
+			return nil
+		}
+	}
+	return nil
+}
+
+// Отправить JSON
 func ActPost(buf []byte, adrstr string) error {
 
 	fmt.Printf("JSON: %v\n", string(buf))
@@ -135,6 +158,7 @@ func ActPost(buf []byte, adrstr string) error {
 	}
 	req, err := http.NewRequest("POST", adrstr, bytes.NewBuffer(jsonZip))
 	if err != nil {
+		fmt.Printf("Error:%v\n", err)
 		return error(err)
 	}
 	req.Header.Set("Content-Encoding", "gzip")

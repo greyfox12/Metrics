@@ -8,6 +8,7 @@ import (
 	"time"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
+	//	_ "github.com/lib/pq"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -70,7 +71,10 @@ func main() {
 			fmt.Printf("Error connect DB: %v\n", err)
 		}
 		defer db.Close()
-		_ = dbstore.CreateDB(db)
+
+		if err = dbstore.CreateDB(db); err != nil {
+			vServerParam.OnDSN = false
+		}
 
 		if vServerParam.Restore {
 			if err := dbstore.LoadMetric(gauge, metric, db); err != nil {
