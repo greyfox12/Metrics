@@ -76,7 +76,7 @@ func main() {
 
 		if int(PollCount)%(Config.ReportInterval/Config.PollInterval) == 0 {
 			if ok := client.PostCounter(ListGauge, ListCounter, "updates"); ok != nil {
-				logmy.OutLog(fmt.Errorf("Error Post metrics: %w", ok))
+				logmy.OutLog(fmt.Errorf("post metrics: %w", ok))
 			}
 		}
 
