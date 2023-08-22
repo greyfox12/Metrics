@@ -44,7 +44,7 @@ type Metrics struct {
 func (c Client) PostCounter(ga map[int]GaugeMetric, co map[int]CounterMetric, updateTyp string) error {
 	//	fmt.Printf("Time: %v\n", time.Now().Unix())
 	stArr := make([]Metrics, 1000)
-	var cn int = 0
+	cn := 0
 
 	adrstr := fmt.Sprintf("%s/%s", c.url, updateTyp)
 
@@ -134,7 +134,7 @@ func Resend(buf []byte, adrstr string) error {
 			return nil
 		}
 
-		logmy.OutLog(fmt.Errorf("Post. Error posts: %w", err))
+		logmy.OutLog(fmt.Errorf("post send message: %w", err))
 		if _, yes := err.(net.Error); !yes {
 			return err
 		}
@@ -183,7 +183,7 @@ func ActPost(buf []byte, adrstr string) error {
 		}
 	}
 
-	logmy.OutLog(fmt.Errorf("Post. response Body: %v", string(body)))
+	logmy.OutLog(fmt.Errorf("post send response body: %v", string(body)))
 	//	fmt.Println("response Body:", string(body))
 	return nil
 }
