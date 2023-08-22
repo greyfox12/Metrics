@@ -75,10 +75,6 @@ func Param() TConfig {
 	}
 
 	// Ключи командной строки
-	//	ServerAdr := new(NetAddress) // {"http://localhost:8080"}
-	//	_ = flag.Value(ServerAdr)
-
-	// проверка реализации
 	flag.StringVar(&cfg.Address, "a", cfg.Address, "Net address host:port")
 
 	flag.IntVar(&cfg.PollInterval, "p", cfg.PollInterval, "Pool interval sec.")
@@ -89,11 +85,7 @@ func Param() TConfig {
 	if !strings.HasPrefix(cfg.Address, "http://") {
 		cfg.Address = "http://" + cfg.Address
 	}
-	//	fmt.Printf("*ServerAd=%v\n", *ServerAdr)
-	//	if *ServerAdr != "" {
-	//		cfg.Address = string(*ServerAdr)
-	//	}
 
-	fmt.Printf("cfg.Address=%v\n", cfg.Address)
+	//	fmt.Printf("cfg.Address=%v\n", cfg.Address)
 	return cfg
 }
