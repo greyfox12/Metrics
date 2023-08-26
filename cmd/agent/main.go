@@ -7,10 +7,16 @@ import (
 	"time"
 
 	"github.com/greyfox12/Metrics/internal/agent/getparam"
+	"github.com/greyfox12/Metrics/internal/agent/logmy"
 	"github.com/greyfox12/Metrics/internal/agent/post"
 )
 
 func main() {
+
+	// Инициализирую логирование
+	if ok := logmy.Initialize("info"); ok != nil {
+		panic(ok)
+	}
 
 	// Читаю окружение и ключи командной строки
 	Config := getparam.Param()
@@ -69,8 +75,8 @@ func main() {
 		ListCounter[1] = post.CounterMetric{Name: "PollCount", Val: post.Counter(PollCount)}
 
 		if int(PollCount)%(Config.ReportInterval/Config.PollInterval) == 0 {
-			if ok := client.PostCounter(ListGauge, ListCounter); ok != nil {
-				fmt.Printf("Error Post metrics: %v\n", ok)
+			if ok := client.PostCounter(ListGauge, ListCounter, "updates"); ok != nil {
+				logmy.OutLog(fmt.Errorf("post metrics: %w", ok))
 			}
 		}
 

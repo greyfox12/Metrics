@@ -12,12 +12,14 @@ const (
 	DefServerAdr      = "http://localhost:8080"
 	DefPollInterval   = 2
 	DefReportInterval = 10
+	DefPostUpdates    = true
 )
 
 type TConfig struct {
 	Address        string
 	ReportInterval int
 	PollInterval   int
+	PostUpdates    bool
 }
 
 type NetAddress string
@@ -41,6 +43,9 @@ func Param() TConfig {
 	var cfg TConfig
 	if res, ok := os.LookupEnv("ADDRESS"); ok {
 		cfg.Address = res
+		fmt.Printf("LookupEnv(ADDRESS)=%v\n", res)
+	} else {
+		cfg.Address = DefServerAdr
 	}
 
 	if tmp, ok := os.LookupEnv("REPORT_INTERVAL"); ok {
@@ -68,24 +73,19 @@ func Param() TConfig {
 	if cfg.Address != "" && !strings.HasPrefix(cfg.Address, "http://") {
 		cfg.Address = "http://" + cfg.Address
 	}
-	if cfg.Address == "" {
-		cfg.Address = DefServerAdr
-	}
 
 	// Ключи командной строки
-	ServerAdr := new(NetAddress) // {"http://localhost:8080"}
-	_ = flag.Value(ServerAdr)
-
-	// проверка реализации
-	flag.Var(ServerAdr, "a", "Net address host:port")
+	flag.StringVar(&cfg.Address, "a", cfg.Address, "Net address host:port")
 
 	flag.IntVar(&cfg.PollInterval, "p", cfg.PollInterval, "Pool interval sec.")
 	flag.IntVar(&cfg.ReportInterval, "r", cfg.ReportInterval, "Report interval sec.")
+	flag.BoolVar(&cfg.PostUpdates, "u", DefPostUpdates, "Updates mode post")
 	flag.Parse()
 
-	if *ServerAdr != "" {
-		cfg.Address = string(*ServerAdr)
+	if !strings.HasPrefix(cfg.Address, "http://") {
+		cfg.Address = "http://" + cfg.Address
 	}
 
+	//	fmt.Printf("cfg.Address=%v\n", cfg.Address)
 	return cfg
 }

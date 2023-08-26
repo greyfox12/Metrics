@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -10,9 +11,11 @@ import (
 	"strings"
 
 	"github.com/greyfox12/Metrics/internal/server/compress"
+	"github.com/greyfox12/Metrics/internal/server/dbstore"
 	"github.com/greyfox12/Metrics/internal/server/filesave"
 	"github.com/greyfox12/Metrics/internal/server/getparam"
 	"github.com/greyfox12/Metrics/internal/server/logmy"
+	"github.com/greyfox12/Metrics/internal/server/postupdates"
 	"github.com/greyfox12/Metrics/internal/server/storage"
 )
 
@@ -68,56 +71,61 @@ func PostPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, maxl
 			return
 		}
 		//		fmt.Printf("vMetrics: %v \n", vMetrics)
-
-		if vMetrics.ID == "" || (vMetrics.MType != "gauge" && vMetrics.MType != "counter") || len(vMetrics.ID) > 100 {
-			res.WriteHeader(http.StatusBadRequest)
+		_, ok := postupdates.DecodeMess(mgauge, mmetric, maxlen, vMetrics)
+		if ok != http.StatusOK {
+			res.WriteHeader(ok)
 			return
 		}
 
-		if vMetrics.MType == "gauge" {
-			// контроль длинны карты
-			if _, ok := mgauge.Get(vMetrics.ID); ok != nil && mgauge.Len() > maxlen {
-				res.WriteHeader(http.StatusBadRequest)
-				return
-			}
+		/*		if vMetrics.ID == "" || (vMetrics.MType != "gauge" && vMetrics.MType != "counter") || len(vMetrics.ID) > 100 {
+					res.WriteHeader(http.StatusBadRequest)
+					return
+				}
 
-			if vMetrics.Value == nil {
+				if vMetrics.MType == "gauge" {
+					// контроль длинны карты
+					if _, ok := mgauge.Get(vMetrics.ID); ok != nil && mgauge.Len() > maxlen {
+						res.WriteHeader(http.StatusBadRequest)
+						return
+					}
 
-				vMetrics.Value = new(float64)
-			}
+					if vMetrics.Value == nil {
 
-			// Добавляю новую метрику
-			mgauge.Set(vMetrics.ID, *vMetrics.Value)
-			// Выбираю новое значение метрики
-			var ok error
-			if *vMetrics.Value, ok = mgauge.Get(vMetrics.ID); ok != nil {
-				res.WriteHeader(http.StatusBadRequest)
-				return
-			}
-		}
+						vMetrics.Value = new(float64)
+					}
 
-		if vMetrics.MType == "counter" {
-			// контроль длинны карты
-			if _, ok := mmetric.Get(vMetrics.ID); ok != nil && mmetric.Len() > maxlen {
-				res.WriteHeader(http.StatusBadRequest)
-				return
-			}
-			if vMetrics.Delta == nil {
-				vMetrics.Delta = new(int64)
-				//				res.WriteHeader(http.StatusBadRequest)
-				//				return
-			}
-			// Добавляю новую метрику
-			mmetric.Set(vMetrics.ID, *vMetrics.Delta)
+					// Добавляю новую метрику
+					mgauge.Set(vMetrics.ID, *vMetrics.Value)
+					// Выбираю новое значение метрики
+					var ok error
+					if *vMetrics.Value, ok = mgauge.Get(vMetrics.ID); ok != nil {
+						res.WriteHeader(http.StatusBadRequest)
+						return
+					}
+				}
 
-			// Выбираю новое значение метрики
-			var ok error
-			if *vMetrics.Delta, ok = mmetric.Get(vMetrics.ID); ok != nil {
-				res.WriteHeader(http.StatusBadRequest)
-				return
-			}
-		}
+				if vMetrics.MType == "counter" {
+					// контроль длинны карты
+					if _, ok := mmetric.Get(vMetrics.ID); ok != nil && mmetric.Len() > maxlen {
+						res.WriteHeader(http.StatusBadRequest)
+						return
+					}
+					if vMetrics.Delta == nil {
+						vMetrics.Delta = new(int64)
+						//				res.WriteHeader(http.StatusBadRequest)
+						//				return
+					}
+					// Добавляю новую метрику
+					mmetric.Set(vMetrics.ID, *vMetrics.Delta)
 
+					// Выбираю новое значение метрики
+					var ok error
+					if *vMetrics.Delta, ok = mmetric.Get(vMetrics.ID); ok != nil {
+						res.WriteHeader(http.StatusBadRequest)
+						return
+					}
+				}
+		*/
 		jsonData, err := json.Marshal(vMetrics)
 		if err != nil {
 			res.WriteHeader(http.StatusBadRequest)
@@ -292,6 +300,7 @@ func OnePostMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCoun
 
 		//		fmt.Printf("OneMetricPage \n")
 		var vMetrics storage.Metrics
+
 		if req.Method != http.MethodPost {
 			res.WriteHeader(http.StatusMethodNotAllowed)
 			return
@@ -343,7 +352,7 @@ func OnePostMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCoun
 	}
 }
 
-func SavePage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, maxlen int, cfg getparam.ServerParam) func(next http.Handler) http.Handler {
+func SavePage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, db *sql.DB, cfg getparam.ServerParam) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			next.ServeHTTP(w, r)
@@ -351,7 +360,12 @@ func SavePage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, maxl
 			if len(aSt) > 1 && aSt[1] == "update" && cfg.StoreInterval == 0 {
 
 				logmy.OutLog(errors.New("SavePage"))
-				filesave.SaveMetric(mgauge, mmetric, cfg.FileStorePath)
+				if cfg.OnFile {
+					filesave.SaveMetric(mgauge, mmetric, cfg.FileStorePath)
+				}
+				if cfg.OnDSN {
+					dbstore.SaveMetric(mgauge, mmetric, db)
+				}
 			}
 		}
 
