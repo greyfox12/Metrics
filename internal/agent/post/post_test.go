@@ -6,6 +6,8 @@ import (
 	"net/http/httptest"
 
 	"testing"
+
+	"github.com/greyfox12/Metrics/internal/agent/getparam"
 )
 
 func TestPostCounter(t *testing.T) {
@@ -28,7 +30,7 @@ func TestPostCounter(t *testing.T) {
 
 	defer svr.Close()
 	fmt.Printf("svr.URL=%s\n", svr.URL)
-	c := NewClient(svr.URL)
+	c := NewClient(getparam.TConfig{Address: svr.URL})
 	err := c.PostCounter(ListGauge, ListCounter, updateTyp)
 	if err != nil {
 		t.Errorf("expected err to be nil got %v", err)
