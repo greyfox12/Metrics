@@ -23,6 +23,7 @@ func main() {
 	fmt.Printf("ServerAdr = %v\n", Config.Address)
 	fmt.Printf("PollInterval = %v\n", Config.PollInterval)
 	fmt.Printf("ReportInterval = %v\n", Config.ReportInterval)
+	fmt.Printf("Key = %v\n", Config.Key)
 
 	if Config.PollInterval > Config.ReportInterval {
 		panic("ReportInterval должен быть больше PollInterval")
@@ -38,7 +39,7 @@ func main() {
 	ListGauge = make(map[int]post.GaugeMetric)
 	ListCounter = make(map[int]post.CounterMetric)
 
-	client := post.NewClient(Config.Address)
+	client := post.NewClient(Config)
 
 	for {
 		runtime.ReadMemStats(&m)

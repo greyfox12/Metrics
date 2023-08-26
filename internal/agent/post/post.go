@@ -2,6 +2,7 @@ package post
 
 import (
 	"bytes"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -10,6 +11,8 @@ import (
 	"time"
 
 	"github.com/greyfox12/Metrics/internal/agent/compress"
+	"github.com/greyfox12/Metrics/internal/agent/getparam"
+	"github.com/greyfox12/Metrics/internal/agent/hash"
 	"github.com/greyfox12/Metrics/internal/agent/logmy"
 )
 
@@ -27,11 +30,11 @@ type GaugeMetric struct {
 }
 
 type Client struct {
-	url string
+	cfg getparam.TConfig
 }
 
-func NewClient(url string) Client {
-	return Client{url}
+func NewClient(cfg getparam.TConfig) Client {
+	return Client{cfg}
 }
 
 type Metrics struct {
@@ -46,7 +49,7 @@ func (c Client) PostCounter(ga map[int]GaugeMetric, co map[int]CounterMetric, up
 	stArr := make([]Metrics, 1000)
 	cn := 0
 
-	adrstr := fmt.Sprintf("%s/%s", c.url, updateTyp)
+	adrstr := fmt.Sprintf("%s/%s", c.cfg.Address, updateTyp)
 
 	for _, val := range ga {
 		st := Metrics{ID: val.Name, MType: "gauge", Value: (*float64)(&val.Val)}
@@ -54,7 +57,7 @@ func (c Client) PostCounter(ga map[int]GaugeMetric, co map[int]CounterMetric, up
 		cn++
 
 		if updateTyp == "update" {
-			if ok := postMess(st, adrstr); ok != nil {
+			if ok := postMess(st, adrstr, c.cfg); ok != nil {
 				fmt.Printf("Error post: %v, %v\n", st, ok)
 			}
 		}
@@ -67,7 +70,7 @@ func (c Client) PostCounter(ga map[int]GaugeMetric, co map[int]CounterMetric, up
 		cn++
 
 		if updateTyp == "update" {
-			if ok := postMess(st, adrstr); ok != nil {
+			if ok := postMess(st, adrstr, c.cfg); ok != nil {
 				fmt.Printf("Error post: %v, %v\n", st, ok)
 			}
 		}
@@ -77,7 +80,7 @@ func (c Client) PostCounter(ga map[int]GaugeMetric, co map[int]CounterMetric, up
 		return nil
 	}
 
-	if ok := postUpdates(stArr[0:cn], adrstr); ok != nil {
+	if ok := postUpdates(stArr[0:cn], adrstr, c.cfg); ok != nil {
 
 		fmt.Printf("Error posts:  %v\n", ok)
 		if _, yes := ok.(net.Error); yes {
@@ -89,13 +92,13 @@ func (c Client) PostCounter(ga map[int]GaugeMetric, co map[int]CounterMetric, up
 }
 
 // Вывод по одной записи
-func postMess(st Metrics, adrstr string) error {
+func postMess(st Metrics, adrstr string, cfg getparam.TConfig) error {
 	jsonData, err := json.Marshal(st)
 	if err != nil {
 		return error(err)
 	}
 
-	err = Resend(jsonData, adrstr)
+	err = Resend(jsonData, adrstr, cfg)
 	if err != nil {
 		return error(err)
 	}
@@ -104,7 +107,7 @@ func postMess(st Metrics, adrstr string) error {
 }
 
 // Вывод слайса
-func postUpdates(stArr []Metrics, adrstr string) error {
+func postUpdates(stArr []Metrics, adrstr string, cfg getparam.TConfig) error {
 	var err error
 
 	jsonData, err := json.Marshal(stArr)
@@ -112,7 +115,7 @@ func postUpdates(stArr []Metrics, adrstr string) error {
 		return error(err)
 	}
 
-	err = Resend(jsonData, adrstr)
+	err = Resend(jsonData, adrstr, cfg)
 	if err != nil {
 		return error(err)
 	}
@@ -121,7 +124,7 @@ func postUpdates(stArr []Metrics, adrstr string) error {
 }
 
 // Повторяю при ошибках вывод
-func Resend(buf []byte, adrstr string) error {
+func Resend(buf []byte, adrstr string, cfg getparam.TConfig) error {
 	var err error
 
 	for i := 1; i <= 4; i++ {
@@ -130,7 +133,7 @@ func Resend(buf []byte, adrstr string) error {
 			time.Sleep(time.Duration(WaitSec(i-1)) * time.Second)
 		}
 
-		if err = ActPost(buf, adrstr); err == nil {
+		if err = ActPost(buf, adrstr, cfg); err == nil {
 			return nil
 		}
 
@@ -143,7 +146,9 @@ func Resend(buf []byte, adrstr string) error {
 }
 
 // Отправить JSON
-func ActPost(buf []byte, adrstr string) error {
+func ActPost(buf []byte, adrstr string, cfg getparam.TConfig) error {
+
+	//hashIn := base64.URLEncoding.EncodeToString(hash.MakeHash(buf))
 
 	jsonZip, err := compress.Compress(buf)
 
@@ -159,6 +164,11 @@ func ActPost(buf []byte, adrstr string) error {
 		return error(err)
 	}
 
+	if cfg.Key != "" {
+		hashIn := hex.EncodeToString(hash.MakeHash(buf))
+		//		fmt.Printf("HashIn: %v\n", hashIn)
+		req.Header.Set("HashSHA256", hashIn)
+	}
 	req.Header.Set("Content-Encoding", "gzip")
 	req.Header.Add("Accept-Encoding", "gzip")
 	req.Header.Add("Content-Type", "application/json")
@@ -174,6 +184,7 @@ func ActPost(buf []byte, adrstr string) error {
 	if err != nil {
 		return error(err)
 	}
+	fmt.Println("response Body:", string(body))
 
 	if response.Header.Get("Content-Encoding") == "gzip" || response.Header.Get("Content-Encoding") == "flate" {
 		fmt.Printf("Header gzip \n")
@@ -183,8 +194,19 @@ func ActPost(buf []byte, adrstr string) error {
 		}
 	}
 
+	// Проверяю Подпись ответа, если есть
+	if cfg.Key != "" && response.Header.Get("HashSHA256") != "" {
+		hashOut := hex.EncodeToString(hash.MakeHash(body))
+		if response.Header.Get("HashSHA256") == hashOut {
+			fmt.Printf("Check hash Server: OK!\n")
+		} else {
+			fmt.Printf("Check hash Server: different! %v  %v\n", response.Header.Get("HashSHA256"), hashOut)
+			//		return fmt.Errorf("check hash server: different! %v  %v\n", response.Header.Get("HashSHA256"), hashOut)
+		}
+	}
+
 	logmy.OutLog(fmt.Errorf("post send response body: %v", string(body)))
-	//	fmt.Println("response Body:", string(body))
+	fmt.Println("response Body:", string(body))
 	return nil
 }
 

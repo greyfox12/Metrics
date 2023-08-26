@@ -18,6 +18,7 @@ type ServerParam struct {
 	OnDSN         bool
 	OnFile        bool
 	OnMap         bool
+	Key           string
 }
 
 func Param(sp *ServerParam) ServerParam {
@@ -54,11 +55,16 @@ func Param(sp *ServerParam) ServerParam {
 		}
 	}
 
+	if res, ok := os.LookupEnv("KEY"); ok {
+		cfg.Key = res
+	}
+
 	flag.StringVar(&cfg.IPAddress, "a", cfg.IPAddress, "Endpoint server IP address host:port")
 	flag.StringVar(&cfg.FileStorePath, "f", cfg.FileStorePath, "File Store Path")
 	flag.IntVar(&cfg.StoreInterval, "i", cfg.StoreInterval, "Store interval")
 	flag.BoolVar(&cfg.Restore, "r", cfg.Restore, "Restore data from file")
 	flag.StringVar(&cfg.DSN, "d", "", "Restore data from file")
+	flag.StringVar(&cfg.Key, "k", "", "Key")
 	flag.Parse()
 
 	if tStr, ok = os.LookupEnv("DATABASE_DSN"); ok {
