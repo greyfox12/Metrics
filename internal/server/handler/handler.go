@@ -2,7 +2,6 @@ package handler
 
 import (
 	"database/sql"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -13,7 +12,6 @@ import (
 	"github.com/greyfox12/Metrics/internal/server/dbstore"
 	"github.com/greyfox12/Metrics/internal/server/filesave"
 	"github.com/greyfox12/Metrics/internal/server/getparam"
-	"github.com/greyfox12/Metrics/internal/server/hash"
 	"github.com/greyfox12/Metrics/internal/server/logmy"
 	"github.com/greyfox12/Metrics/internal/server/postupdates"
 	"github.com/greyfox12/Metrics/internal/server/storage"
@@ -32,7 +30,6 @@ func PostPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, maxl
 		}
 		aSt := strings.Split(req.URL.Path, "/")
 
-		//		fmt.Printf("req.Body: %v \n", req.Body)
 		fmt.Printf("req.Header: %v \n", req.Header.Get("Content-Encoding"))
 
 		n, err := req.Body.Read(body)
@@ -45,18 +42,7 @@ func PostPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, maxl
 		defer req.Body.Close()
 
 		bodyS := body[0:n]
-		//		fmt.Printf("n =%v, Body: %v \n", n, bodyS)
 
-		/*	if req.Header.Get("Content-Encoding") == "gzip" || req.Header.Get("Content-Encoding") == "flate" {
-				//			fmt.Printf("Header gzip \n")
-				bodyS, err = compress.Decompress(body, req.Header.Get("Content-Encoding"))
-				if err != nil {
-					fmt.Printf("Error ungzip %v\n", err)
-					res.WriteHeader(http.StatusBadRequest)
-					return
-				}
-			}
-		*/
 		if len(aSt) < 2 || aSt[1] != "update" {
 			fmt.Printf("Error tags %v \n", len(aSt))
 			res.WriteHeader(http.StatusBadRequest)
@@ -69,7 +55,7 @@ func PostPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, maxl
 			res.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		//		fmt.Printf("vMetrics: %v \n", vMetrics)
+
 		_, ok := postupdates.DecodeMess(mgauge, mmetric, maxlen, vMetrics)
 		if ok != http.StatusOK {
 			res.WriteHeader(ok)
@@ -83,7 +69,6 @@ func PostPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, maxl
 		}
 
 		res.Header().Set("Content-Type", "application/json")
-		//		res.WriteHeader(http.StatusOK)
 		res.Write([]byte(jsonData))
 	}
 }
@@ -125,7 +110,6 @@ func GaugePage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, max
 		// Добавляю новую метрику
 		mgauge.Set(metricName, metricCn)
 
-		//		res.WriteHeader(http.StatusOK)
 		res.Write(nil)
 	}
 }
@@ -165,7 +149,6 @@ func CounterPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, m
 
 		// Добавляю новую метрику
 		mmetric.Set(metricName, metricCn)
-		//		res.WriteHeader(http.StatusOK)
 		res.Write(nil)
 	}
 }
@@ -206,11 +189,8 @@ func ListMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter
 			}
 		}
 		res.Header().Set("Content-Type", "text/html")
-		//	res.WriteHeader(http.StatusOK)
-		//		fmt.Printf("ListMetric page %v \n", res.Header())
 
 		res.Write([]byte(strings.Join(body, "\n")))
-		//		SetHeadWrite([]byte(strings.Join(body, "\n")), cfg, res)
 	}
 }
 
@@ -296,7 +276,6 @@ func OnePostMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCoun
 		}
 		res.Header().Set("Content-Type", "application/json")
 		res.Write([]byte(jsonData))
-		//		SetHeadWrite([]byte(jsonData), cfg, res)
 	}
 }
 
@@ -319,16 +298,4 @@ func SavePage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, db *
 
 		return http.HandlerFunc(fn)
 	}
-}
-
-// Считаю ХЕШ если нужно и устанавливаю Заголовки
-func SetHeadWrite(str []byte, cfg getparam.ServerParam, r http.ResponseWriter) {
-	// Считаю хеш при отправке ответа
-	if cfg.Key != "" {
-		hashOut := hex.EncodeToString(hash.MakeHash(str))
-		r.Header().Set("HashSHA256", hashOut)
-	}
-
-	r.WriteHeader(http.StatusOK)
-	r.Write(str)
 }

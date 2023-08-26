@@ -15,14 +15,10 @@ import (
 type hashWriter struct {
 	http.ResponseWriter
 	Writer io.Writer
-	//	cfg    getparam.ServerParam
-	//	content string
 }
 
 func (w hashWriter) Write(b []byte) (int, error) {
 	// w.Writer будет отвечать за генерацию ХЕШ, поэтому пишем в него
-	//	w.content = w.Header().Get("Content-Type")
-	//	w.cfg = cfg
 	return w.Writer.Write(b)
 }
 
@@ -63,10 +59,9 @@ func HashHandle(next http.Handler, cfg getparam.ServerParam) http.Handler {
 			// передаём обработчику страницы переменную типа hashWriter для вывода данных
 			next.ServeHTTP(w, r)
 			return
-
 		}
 
-		// если gzip не поддерживается, передаём управление
+		// если hash не поддерживается, передаём управление
 		// дальше без изменений
 		next.ServeHTTP(w, r)
 	})
