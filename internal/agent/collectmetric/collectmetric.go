@@ -55,8 +55,8 @@ func CollectGauge(PollCount int64, job chan<- map[int]post.CollectMetr) {
 
 func CollectAdd(PollCount int64, job chan<- map[int]post.CollectMetr) {
 
-	var List map[int]post.CollectMetr
-	List = make(map[int]post.CollectMetr)
+	//	var List map[int]post.CollectMetr
+	List := make(map[int]post.CollectMetr)
 
 	fmt.Printf("Start Add:%v\n", PollCount)
 	v, _ := mem.VirtualMemory()
