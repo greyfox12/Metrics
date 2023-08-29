@@ -23,7 +23,7 @@ func PostUpdates(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, m
 		var JSONMetrics []storage.Metrics
 		var LastMess storage.Metrics
 
-		//	fmt.Printf("req.Header.Get %v\n", req.Header.Get("HashSHA256"))
+		fmt.Printf("req.Header %v\n", req.Header)
 		if req.Method != http.MethodPost {
 			res.WriteHeader(http.StatusMethodNotAllowed)
 			return
@@ -56,7 +56,8 @@ func PostUpdates(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, m
 						return
 					}
 				}
-		*/ //		fmt.Printf("PostUpdates: n =%v, Body: %v \n", n, string(bodyS))
+		*/
+		//		fmt.Printf("PostUpdates: n =%v, Body: %v \n", n, string(bodyS))
 		if cfg.Key != "" {
 			hash := hex.EncodeToString(hash.MakeHash(bodyS))
 			if req.Header.Get("HashSHA256") != hash {

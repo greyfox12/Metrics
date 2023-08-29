@@ -3981,3 +3981,126 @@
 {"level":"info","ts":"2023-08-26T16:49:39.145+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"PollCount\",\"type\":\"counter\",\"delta\":0}"}
 {"level":"info","ts":"2023-08-26T16:52:34.184+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"PollCount\",\"type\":\"counter\",\"delta\":0}"}
 {"level":"info","ts":"2023-08-26T16:54:43.534+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"PollCount\",\"type\":\"counter\",\"delta\":0}"}
+{"level":"info","ts":"2023-08-29T10:22:13.870+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T22:16:38.164+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T22:16:38.192+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T22:19:14.675+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"CPUutilization1\",\"type\":\"gauge\",\"value\":0}"}
+{"level":"info","ts":"2023-08-29T22:19:14.703+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"MSpanSys\",\"type\":\"gauge\",\"value\":48960}"}
+{"level":"info","ts":"2023-08-29T22:20:53.655+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"CPUutilization1\",\"type\":\"gauge\",\"value\":0}"}
+{"level":"info","ts":"2023-08-29T22:20:53.693+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"HeapAlloc\",\"type\":\"gauge\",\"value\":727688}"}
+{"level":"info","ts":"2023-08-29T22:21:50.080+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"CPUutilization1\",\"type\":\"gauge\",\"value\":0}"}
+{"level":"info","ts":"2023-08-29T22:21:50.119+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"GCSys\",\"type\":\"gauge\",\"value\":5917504}"}
+{"level":"info","ts":"2023-08-29T22:45:38.755+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"CPUutilization1\",\"type\":\"gauge\",\"value\":0}"}
+{"level":"info","ts":"2023-08-29T22:45:38.789+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"MSpanInuse\",\"type\":\"gauge\",\"value\":34400}"}
+{"level":"info","ts":"2023-08-29T22:45:40.458+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"CPUutilization1\",\"type\":\"gauge\",\"value\":0}"}
+{"level":"info","ts":"2023-08-29T22:45:40.468+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"RandomValue\",\"type\":\"gauge\",\"value\":0.4203454670916909}"}
+{"level":"info","ts":"2023-08-29T22:45:42.454+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"FreeMemory\",\"type\":\"gauge\",\"value\":1623306240}"}
+{"level":"info","ts":"2023-08-29T22:45:42.468+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"GCSys\",\"type\":\"gauge\",\"value\":6689208}"}
+{"level":"info","ts":"2023-08-29T22:45:44.470+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"RandomValue\",\"type\":\"gauge\",\"value\":0.9816731097230117}"}
+{"level":"info","ts":"2023-08-29T22:45:44.486+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"TotalMemory\",\"type\":\"gauge\",\"value\":8434163712}"}
+{"level":"info","ts":"2023-08-29T22:45:46.483+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"TotalMemory\",\"type\":\"gauge\",\"value\":8434163712}"}
+{"level":"info","ts":"2023-08-29T22:45:46.507+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"PollCount\",\"type\":\"gauge\",\"value\":0}"}
+{"level":"info","ts":"2023-08-29T22:45:48.471+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"FreeMemory\",\"type\":\"gauge\",\"value\":1634947072}"}
+{"level":"info","ts":"2023-08-29T22:45:48.492+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"MCacheSys\",\"type\":\"gauge\",\"value\":16352}"}
+{"level":"info","ts":"2023-08-29T22:45:50.469+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T22:45:50.480+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T22:45:52.473+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T22:45:52.489+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T22:45:54.467+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T22:45:54.476+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T22:45:56.466+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T22:45:56.474+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T22:45:58.470+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T22:45:58.481+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T22:46:00.469+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T22:46:00.477+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T22:46:02.487+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T22:46:02.495+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T22:46:05.802+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send message: Post \"http://localhost:8080/updates\": dial tcp [::1]:8080: connectex: No connection could be made because the target machine actively refused it."}
+{"level":"info","ts":"2023-08-29T22:46:08.132+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send message: Post \"http://localhost:8080/updates\": dial tcp [::1]:8080: connectex: No connection could be made because the target machine actively refused it."}
+{"level":"info","ts":"2023-08-29T22:46:12.467+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send message: Post \"http://localhost:8080/updates\": dial tcp [::1]:8080: connectex: No connection could be made because the target machine actively refused it."}
+{"level":"info","ts":"2023-08-29T22:46:18.805+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send message: Post \"http://localhost:8080/updates\": dial tcp [::1]:8080: connectex: No connection could be made because the target machine actively refused it."}
+{"level":"info","ts":"2023-08-29T22:46:20.129+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send message: Post \"http://localhost:8080/updates\": dial tcp [::1]:8080: connectex: No connection could be made because the target machine actively refused it."}
+{"level":"info","ts":"2023-08-29T22:46:22.435+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send message: Post \"http://localhost:8080/updates\": dial tcp [::1]:8080: connectex: No connection could be made because the target machine actively refused it."}
+{"level":"info","ts":"2023-08-29T22:50:04.255+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"TotalMemory\",\"type\":\"gauge\",\"value\":8434163712}"}
+{"level":"info","ts":"2023-08-29T22:50:04.285+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"NumGC\",\"type\":\"gauge\",\"value\":0}"}
+{"level":"info","ts":"2023-08-29T22:50:05.953+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"TotalMemory\",\"type\":\"gauge\",\"value\":8434163712}"}
+{"level":"info","ts":"2023-08-29T22:50:05.966+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"MSpanInuse\",\"type\":\"gauge\",\"value\":54880}"}
+{"level":"info","ts":"2023-08-29T22:50:07.955+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"CPUutilization1\",\"type\":\"gauge\",\"value\":0}"}
+{"level":"info","ts":"2023-08-29T22:50:07.970+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"OtherSys\",\"type\":\"gauge\",\"value\":811143}"}
+{"level":"info","ts":"2023-08-29T22:50:09.975+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"MSpanSys\",\"type\":\"gauge\",\"value\":81600}"}
+{"level":"info","ts":"2023-08-29T22:50:09.994+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"CPUutilization1\",\"type\":\"gauge\",\"value\":0}"}
+{"level":"info","ts":"2023-08-29T22:50:13.278+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send message: Post \"http://localhost:8080/updates\": dial tcp [::1]:8080: connectex: No connection could be made because the target machine actively refused it."}
+{"level":"info","ts":"2023-08-29T22:50:15.597+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send message: Post \"http://localhost:8080/updates\": dial tcp [::1]:8080: connectex: No connection could be made because the target machine actively refused it."}
+{"level":"info","ts":"2023-08-29T22:50:19.914+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send message: Post \"http://localhost:8080/updates\": dial tcp [::1]:8080: connectex: No connection could be made because the target machine actively refused it."}
+{"level":"info","ts":"2023-08-29T22:52:18.920+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send message: Post \"http://localhost:8080/updates\": dial tcp [::1]:8080: connectex: No connection could be made because the target machine actively refused it."}
+{"level":"info","ts":"2023-08-29T22:52:21.262+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send message: Post \"http://localhost:8080/updates\": dial tcp [::1]:8080: connectex: No connection could be made because the target machine actively refused it."}
+{"level":"info","ts":"2023-08-29T22:52:24.602+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"HeapSys\",\"type\":\"gauge\",\"value\":4030464}"}
+{"level":"info","ts":"2023-08-29T22:52:24.611+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"CPUutilization1\",\"type\":\"gauge\",\"value\":0}"}
+{"level":"info","ts":"2023-08-29T22:52:24.622+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"CPUutilization1\",\"type\":\"gauge\",\"value\":0}"}
+{"level":"info","ts":"2023-08-29T22:52:24.637+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"Sys\",\"type\":\"gauge\",\"value\":11125968}"}
+{"level":"info","ts":"2023-08-29T22:52:24.655+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"StackInuse\",\"type\":\"gauge\",\"value\":327680}"}
+{"level":"info","ts":"2023-08-29T22:52:24.676+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"CPUutilization1\",\"type\":\"gauge\",\"value\":0}"}
+{"level":"info","ts":"2023-08-29T22:52:24.696+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"CPUutilization1\",\"type\":\"gauge\",\"value\":0}"}
+{"level":"info","ts":"2023-08-29T22:52:24.721+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"Alloc\",\"type\":\"gauge\",\"value\":2586008}"}
+{"level":"info","ts":"2023-08-29T22:52:25.673+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"HeapIdle\",\"type\":\"gauge\",\"value\":4448256}"}
+{"level":"info","ts":"2023-08-29T22:52:25.701+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"CPUutilization1\",\"type\":\"gauge\",\"value\":0}"}
+{"level":"info","ts":"2023-08-29T22:52:27.671+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"CPUutilization1\",\"type\":\"gauge\",\"value\":0}"}
+{"level":"info","ts":"2023-08-29T22:52:27.702+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"OtherSys\",\"type\":\"gauge\",\"value\":1081783}"}
+{"level":"info","ts":"2023-08-29T22:52:30.968+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send message: Post \"http://localhost:8080/updates\": dial tcp [::1]:8080: connectex: No connection could be made because the target machine actively refused it."}
+{"level":"info","ts":"2023-08-29T22:52:33.285+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send message: Post \"http://localhost:8080/updates\": dial tcp [::1]:8080: connectex: No connection could be made because the target machine actively refused it."}
+{"level":"info","ts":"2023-08-29T22:52:37.604+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send message: Post \"http://localhost:8080/updates\": dial tcp [::1]:8080: connectex: No connection could be made because the target machine actively refused it."}
+{"level":"info","ts":"2023-08-29T22:52:43.939+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send message: Post \"http://localhost:8080/updates\": dial tcp [::1]:8080: connectex: No connection could be made because the target machine actively refused it."}
+{"level":"info","ts":"2023-08-29T22:52:45.258+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send message: Post \"http://localhost:8080/updates\": dial tcp [::1]:8080: connectex: No connection could be made because the target machine actively refused it."}
+{"level":"info","ts":"2023-08-29T22:52:47.578+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send message: Post \"http://localhost:8080/updates\": dial tcp [::1]:8080: connectex: No connection could be made because the target machine actively refused it."}
+{"level":"info","ts":"2023-08-29T22:52:51.886+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send message: Post \"http://localhost:8080/updates\": dial tcp [::1]:8080: connectex: No connection could be made because the target machine actively refused it."}
+{"level":"info","ts":"2023-08-29T22:55:01.365+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"CPUutilization1\",\"type\":\"gauge\",\"value\":0}"}
+{"level":"info","ts":"2023-08-29T22:55:01.404+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"HeapInuse\",\"type\":\"gauge\",\"value\":1449984}"}
+{"level":"info","ts":"2023-08-29T22:55:03.056+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"CPUutilization1\",\"type\":\"gauge\",\"value\":0}"}
+{"level":"info","ts":"2023-08-29T22:55:03.068+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"OtherSys\",\"type\":\"gauge\",\"value\":1038071}"}
+{"level":"info","ts":"2023-08-29T22:55:05.072+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"CPUutilization1\",\"type\":\"gauge\",\"value\":0}"}
+{"level":"info","ts":"2023-08-29T22:55:05.089+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"OtherSys\",\"type\":\"gauge\",\"value\":1083439}"}
+{"level":"info","ts":"2023-08-29T22:56:59.766+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T22:56:59.837+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T22:57:01.452+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T22:57:01.460+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T22:57:03.454+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T22:57:03.465+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T22:57:53.664+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send message: Post \"http://localhost:8080/updates\": dial tcp [::1]:8080: connectex: No connection could be made because the target machine actively refused it."}
+{"level":"info","ts":"2023-08-29T22:57:56.023+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send message: Post \"http://localhost:8080/updates\": dial tcp [::1]:8080: connectex: No connection could be made because the target machine actively refused it."}
+{"level":"info","ts":"2023-08-29T22:58:00.348+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send message: Post \"http://localhost:8080/updates\": dial tcp [::1]:8080: connectex: No connection could be made because the target machine actively refused it."}
+{"level":"info","ts":"2023-08-29T22:58:05.669+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"CPUutilization1\",\"type\":\"gauge\",\"value\":0}"}
+{"level":"info","ts":"2023-08-29T22:58:05.681+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"PollCount\",\"type\":\"gauge\",\"value\":0}"}
+{"level":"info","ts":"2023-08-29T22:58:05.691+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"CPUutilization1\",\"type\":\"gauge\",\"value\":0}"}
+{"level":"info","ts":"2023-08-29T22:58:05.709+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"TotalAlloc\",\"type\":\"gauge\",\"value\":1726584}"}
+{"level":"info","ts":"2023-08-29T22:58:05.725+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"FreeMemory\",\"type\":\"gauge\",\"value\":1592553472}"}
+{"level":"info","ts":"2023-08-29T22:58:05.744+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"StackInuse\",\"type\":\"gauge\",\"value\":294912}"}
+{"level":"info","ts":"2023-08-29T22:58:05.764+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"CPUutilization1\",\"type\":\"gauge\",\"value\":0}"}
+{"level":"info","ts":"2023-08-29T22:58:05.788+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"HeapReleased\",\"type\":\"gauge\",\"value\":540672}"}
+{"level":"info","ts":"2023-08-29T22:58:05.819+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"CPUutilization1\",\"type\":\"gauge\",\"value\":0}"}
+{"level":"info","ts":"2023-08-29T22:58:05.842+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"RandomValue\",\"type\":\"gauge\",\"value\":0.7990664849205756}"}
+{"level":"info","ts":"2023-08-29T22:58:05.870+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"CPUutilization1\",\"type\":\"gauge\",\"value\":0}"}
+{"level":"info","ts":"2023-08-29T22:58:05.903+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"Sys\",\"type\":\"gauge\",\"value\":15391136}"}
+{"level":"info","ts":"2023-08-29T22:58:05.934+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"CPUutilization1\",\"type\":\"gauge\",\"value\":0}"}
+{"level":"info","ts":"2023-08-29T22:58:05.963+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T22:58:06.426+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T22:58:06.460+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T22:58:08.453+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T22:58:08.484+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T22:58:11.725+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send message: Post \"http://localhost:8080/updates\": dial tcp [::1]:8080: connectex: No connection could be made because the target machine actively refused it."}
+{"level":"info","ts":"2023-08-29T22:58:14.068+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send message: Post \"http://localhost:8080/updates\": dial tcp [::1]:8080: connectex: No connection could be made because the target machine actively refused it."}
+{"level":"info","ts":"2023-08-29T22:58:18.396+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send message: Post \"http://localhost:8080/updates\": dial tcp [::1]:8080: connectex: No connection could be made because the target machine actively refused it."}
+{"level":"info","ts":"2023-08-29T22:58:24.729+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send message: Post \"http://localhost:8080/updates\": dial tcp [::1]:8080: connectex: No connection could be made because the target machine actively refused it."}
+{"level":"info","ts":"2023-08-29T22:58:26.058+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send message: Post \"http://localhost:8080/updates\": dial tcp [::1]:8080: connectex: No connection could be made because the target machine actively refused it."}
+{"level":"info","ts":"2023-08-29T22:58:28.390+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send message: Post \"http://localhost:8080/updates\": dial tcp [::1]:8080: connectex: No connection could be made because the target machine actively refused it."}
+{"level":"info","ts":"2023-08-29T22:58:32.708+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send message: Post \"http://localhost:8080/updates\": dial tcp [::1]:8080: connectex: No connection could be made because the target machine actively refused it."}
+{"level":"info","ts":"2023-08-29T23:11:03.882+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T23:11:03.907+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T23:11:05.564+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T23:11:05.571+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T23:13:12.367+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T23:13:12.390+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: "}
+{"level":"info","ts":"2023-08-29T23:13:40.732+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"CPUutilization1\",\"type\":\"gauge\",\"value\":0}"}
+{"level":"info","ts":"2023-08-29T23:13:40.762+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"Lookups\",\"type\":\"gauge\",\"value\":0}"}
+{"level":"info","ts":"2023-08-29T23:13:42.432+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"CPUutilization1\",\"type\":\"gauge\",\"value\":0}"}
+{"level":"info","ts":"2023-08-29T23:13:42.447+0300","caller":"logmy/logmy.go:39","msg":"Error:","Message":"post send response body: {\"id\":\"PollCount\",\"type\":\"gauge\",\"value\":0}"}

@@ -44,51 +44,57 @@ type Metrics struct {
 	Value *float64 `json:"value,omitempty"` // значение метрики в случае передачи gauge
 }
 
-func (c Client) PostCounter(ga map[int]GaugeMetric, co map[int]CounterMetric, updateTyp string) error {
+type CollectMetr struct {
+	ID    string  // имя метрики
+	MType string  // параметр, принимающий значение gauge или counter
+	Delta Counter // значение метрики в случае передачи counter
+	Value Gauge   // значение метрики в случае передачи gauge
+}
+
+func (c Client) PostCounter(job chan map[int]CollectMetr, result chan<- error, updateTyp string) {
 	//	fmt.Printf("Time: %v\n", time.Now().Unix())
 	stArr := make([]Metrics, 1000)
 	cn := 0
+	var st Metrics
 
 	adrstr := fmt.Sprintf("%s/%s", c.cfg.Address, updateTyp)
 
-	for _, val := range ga {
-		st := Metrics{ID: val.Name, MType: "gauge", Value: (*float64)(&val.Val)}
-		stArr[cn] = st
-		cn++
+	for dt := range job {
+		for _, val := range dt {
+			if val.MType == "gauge" {
+				st = Metrics{ID: val.ID, MType: "gauge", Value: (*float64)(&val.Value)}
+			}
+			if val.MType == "counter" {
+				st = Metrics{ID: val.ID, MType: "counter", Delta: (*int64)(&val.Delta)}
+			}
 
-		if updateTyp == "update" {
-			if ok := postMess(st, adrstr, c.cfg); ok != nil {
-				fmt.Printf("Error post: %v, %v\n", st, ok)
+			stArr[cn] = st
+			cn++
+
+			if updateTyp == "update" {
+				if ok := postMess(st, adrstr, c.cfg); ok != nil {
+					fmt.Printf("Error post: %v, %v\n", st, ok)
+				}
 			}
 		}
-	}
-
-	for _, val := range co {
-
-		st := Metrics{ID: val.Name, MType: "counter", Delta: (*int64)(&val.Val)}
-		stArr[cn] = st
-		cn++
 
 		if updateTyp == "update" {
-			if ok := postMess(st, adrstr, c.cfg); ok != nil {
-				fmt.Printf("Error post: %v, %v\n", st, ok)
+			result <- nil
+			return
+		}
+
+		if ok := postUpdates(stArr[0:cn], adrstr, c.cfg); ok != nil {
+
+			fmt.Printf("Error posts:  %v\n", ok)
+			if _, yes := ok.(net.Error); yes {
+				result <- ok
+				return
 			}
 		}
+
+		result <- nil
+		//		return
 	}
-
-	if updateTyp == "update" {
-		return nil
-	}
-
-	if ok := postUpdates(stArr[0:cn], adrstr, c.cfg); ok != nil {
-
-		fmt.Printf("Error posts:  %v\n", ok)
-		if _, yes := ok.(net.Error); yes {
-			return ok
-		}
-	}
-
-	return nil
 }
 
 // Вывод по одной записи
