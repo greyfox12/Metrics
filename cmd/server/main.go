@@ -34,6 +34,12 @@ const (
 )
 
 func main() {
+
+	serverStart()
+}
+
+// Запускаю сервер
+func serverStart() {
 	var db *sql.DB
 
 	vServerParam := getparam.ServerParam{IPAddress: defServerAdr,
@@ -49,7 +55,6 @@ func main() {
 	if ok := logmy.Initialize("info"); ok != nil {
 		panic(ok)
 	}
-
 	gauge := new(storage.GaugeCounter)
 	gauge.Init(LenArr)
 	metric := new(storage.MetricCounter)
@@ -79,7 +84,8 @@ func main() {
 
 		if vServerParam.Restore {
 			if err := dbstore.LoadMetric(gauge, metric, db); err != nil {
-				fmt.Printf("%v\n", err)
+				logmy.OutLog(err)
+				//				fmt.Printf("%v\n", err)
 			}
 		}
 	}
@@ -128,8 +134,7 @@ func main() {
 	})
 
 	fmt.Printf("Start Server %v\n", vServerParam.IPAddress)
-	//	log.Fatal(http.ListenAndServe(vServerParam.IPAddress, compress.GzipHandle(hash.HashHandle(r, vServerParam))))
+
 	hd := compress.GzipHandle(compress.GzipRead(hash.HashHandle(hash.HashWriteHandle(r, vServerParam), vServerParam)))
 	log.Fatal(http.ListenAndServe(vServerParam.IPAddress, hd))
-
 }

@@ -33,8 +33,8 @@ type Client struct {
 	cfg getparam.TConfig
 }
 
-func NewClient(cfg getparam.TConfig) Client {
-	return Client{cfg}
+func NewClient(cfg getparam.TConfig) *Client {
+	return &Client{cfg}
 }
 
 type Metrics struct {
@@ -58,7 +58,7 @@ func (c Client) PostCounter(job chan map[int]CollectMetr, result chan<- error, u
 	var st Metrics
 
 	adrstr := fmt.Sprintf("%s/%s", c.cfg.Address, updateTyp)
-
+	//	fmt.Printf("adrstr %v\n", adrstr)
 	for dt := range job {
 		for _, val := range dt {
 			if val.MType == "gauge" {
@@ -85,7 +85,8 @@ func (c Client) PostCounter(job chan map[int]CollectMetr, result chan<- error, u
 
 		if ok := postUpdates(stArr[0:cn], adrstr, c.cfg); ok != nil {
 
-			fmt.Printf("Error posts:  %v\n", ok)
+			//			fmt.Printf("Error posts:  %v\n", ok)
+			logmy.OutLog(fmt.Errorf("post metrics: %w", ok))
 			if _, yes := ok.(net.Error); yes {
 				result <- ok
 				return
@@ -101,12 +102,12 @@ func (c Client) PostCounter(job chan map[int]CollectMetr, result chan<- error, u
 func postMess(st Metrics, adrstr string, cfg getparam.TConfig) error {
 	jsonData, err := json.Marshal(st)
 	if err != nil {
-		return error(err)
+		return err
 	}
 
 	err = Resend(jsonData, adrstr, cfg)
 	if err != nil {
-		return error(err)
+		return err
 	}
 	//	fmt.Println("response Body:", body)
 	return nil
@@ -118,12 +119,12 @@ func postUpdates(stArr []Metrics, adrstr string, cfg getparam.TConfig) error {
 
 	jsonData, err := json.Marshal(stArr)
 	if err != nil {
-		return error(err)
+		return err
 	}
 
 	err = Resend(jsonData, adrstr, cfg)
 	if err != nil {
-		return error(err)
+		return err
 	}
 	//	fmt.Println("response Body:", body)
 	return nil
@@ -135,7 +136,8 @@ func Resend(buf []byte, adrstr string, cfg getparam.TConfig) error {
 
 	for i := 1; i <= 4; i++ {
 		if i > 1 {
-			fmt.Printf("Pause: %v sec\n", WaitSec(i-1))
+			//			fmt.Printf("Pause: %v sec\n", WaitSec(i-1))
+			logmy.OutLog(fmt.Errorf("pause: %v sec\n", WaitSec(i-1)))
 			time.Sleep(time.Duration(WaitSec(i-1)) * time.Second)
 		}
 
@@ -159,7 +161,7 @@ func ActPost(buf []byte, adrstr string, cfg getparam.TConfig) error {
 	jsonZip, err := compress.Compress(buf)
 
 	if err != nil {
-		return error(err)
+		return err
 	}
 
 	client := &http.Client{
@@ -167,7 +169,7 @@ func ActPost(buf []byte, adrstr string, cfg getparam.TConfig) error {
 	}
 	req, err := http.NewRequest("POST", adrstr, bytes.NewBuffer(jsonZip))
 	if err != nil {
-		return error(err)
+		return err
 	}
 
 	if cfg.Key != "" {
@@ -180,7 +182,7 @@ func ActPost(buf []byte, adrstr string, cfg getparam.TConfig) error {
 	req.Header.Add("Content-Type", "application/json")
 	response, err := client.Do(req)
 	if err != nil {
-		return error(err)
+		return err
 	}
 
 	fmt.Printf("Head response: %v\n", response.Header)
@@ -188,7 +190,7 @@ func ActPost(buf []byte, adrstr string, cfg getparam.TConfig) error {
 	defer response.Body.Close()
 
 	if err != nil {
-		return error(err)
+		return err
 	}
 	fmt.Println("response Body:", string(body))
 
@@ -196,7 +198,7 @@ func ActPost(buf []byte, adrstr string, cfg getparam.TConfig) error {
 		fmt.Printf("Header gzip \n")
 		body, err = compress.Decompress(body, "flate")
 		if err != nil {
-			return error(err)
+			return err
 		}
 	}
 

@@ -18,39 +18,36 @@ func main() {
 	}
 
 	// Читаю окружение и ключи командной строки
-	Config := getparam.Param()
-	fmt.Printf("ServerAdr = %v\n", Config.Address)
-	fmt.Printf("PollInterval = %v\n", Config.PollInterval)
-	fmt.Printf("ReportInterval = %v\n", Config.ReportInterval)
-	fmt.Printf("Key = %v\n", Config.Key)
+	config := getparam.Param()
+	fmt.Printf("ServerAdr = %v\n", config.Address)
+	fmt.Printf("PollInterval = %v\n", config.PollInterval)
+	fmt.Printf("ReportInterval = %v\n", config.ReportInterval)
+	fmt.Printf("Key = %v\n", config.Key)
 
-	if Config.PollInterval > Config.ReportInterval {
+	if config.PollInterval > config.ReportInterval {
 		panic("ReportInterval должен быть больше PollInterval")
 	}
 
 	PollCount := post.Counter(0) //Счетчик циклов опроса
 
-	//	ListGauge = make(map[int]post.GaugeMetric)
-	//	ListCounter = make(map[int]post.CounterMetric)
-
-	client := post.NewClient(Config)
+	client := post.NewClient(config)
 
 	// создаем буферизованный канал для принятия задач в воркер
-	jobs := make(chan map[int]post.CollectMetr, Config.RateLimit)
+	jobs := make(chan map[int]post.CollectMetr, config.RateLimit)
 	// создаем буферизованный канал для отправки результатов
-	results := make(chan error, Config.RateLimit)
+	results := make(chan error, config.RateLimit)
 
 	// Запускаю исполнителей
-	for w := 1; w <= Config.RateLimit; w++ {
+	for w := 1; w <= config.RateLimit; w++ {
 		go client.PostCounter(jobs, results, "updates")
 	}
 
 	for {
-		if int(PollCount)%(Config.ReportInterval/Config.PollInterval) == 0 {
+		if int(PollCount)%(config.ReportInterval/config.PollInterval) == 0 {
 
 			go collectmetric.CollectGauge(int64(PollCount), jobs)
 			go collectmetric.CollectAdd(int64(PollCount), jobs)
-			time.Sleep(time.Duration(Config.PollInterval) * time.Second)
+			time.Sleep(time.Duration(config.PollInterval) * time.Second)
 		}
 
 		PollCount++
