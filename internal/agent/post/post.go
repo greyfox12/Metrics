@@ -137,7 +137,7 @@ func Resend(buf []byte, adrstr string, cfg getparam.TConfig) error {
 	for i := 1; i <= 4; i++ {
 		if i > 1 {
 			//			fmt.Printf("Pause: %v sec\n", WaitSec(i-1))
-			logmy.OutLog(fmt.Errorf("pause: %v sec\n", WaitSec(i-1)))
+			logmy.OutLog(fmt.Errorf("pause: %v sec.", WaitSec(i-1)))
 			time.Sleep(time.Duration(WaitSec(i-1)) * time.Second)
 		}
 
