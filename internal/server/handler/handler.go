@@ -5,12 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"strconv"
 	"strings"
 
-	"github.com/greyfox12/Metrics/internal/server/compress"
 	"github.com/greyfox12/Metrics/internal/server/dbstore"
 	"github.com/greyfox12/Metrics/internal/server/filesave"
 	"github.com/greyfox12/Metrics/internal/server/getparam"
@@ -22,7 +20,6 @@ import (
 func PostPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, maxlen int, cfg getparam.ServerParam) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 
-		//		fmt.Printf("GaugePage \n")
 		var vMetrics storage.Metrics
 		body := make([]byte, 1000)
 		var err error
@@ -33,7 +30,6 @@ func PostPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, maxl
 		}
 		aSt := strings.Split(req.URL.Path, "/")
 
-		//		fmt.Printf("req.Body: %v \n", req.Body)
 		fmt.Printf("req.Header: %v \n", req.Header.Get("Content-Encoding"))
 
 		n, err := req.Body.Read(body)
@@ -46,17 +42,6 @@ func PostPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, maxl
 		defer req.Body.Close()
 
 		bodyS := body[0:n]
-		//		fmt.Printf("n =%v, Body: %v \n", n, bodyS)
-
-		if req.Header.Get("Content-Encoding") == "gzip" || req.Header.Get("Content-Encoding") == "flate" {
-			//			fmt.Printf("Header gzip \n")
-			bodyS, err = compress.Decompress(body, req.Header.Get("Content-Encoding"))
-			if err != nil {
-				fmt.Printf("Error ungzip %v\n", err)
-				res.WriteHeader(http.StatusBadRequest)
-				return
-			}
-		}
 
 		if len(aSt) < 2 || aSt[1] != "update" {
 			fmt.Printf("Error tags %v \n", len(aSt))
@@ -70,70 +55,20 @@ func PostPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, maxl
 			res.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		//		fmt.Printf("vMetrics: %v \n", vMetrics)
+
 		_, ok := postupdates.DecodeMess(mgauge, mmetric, maxlen, vMetrics)
 		if ok != http.StatusOK {
 			res.WriteHeader(ok)
 			return
 		}
 
-		/*		if vMetrics.ID == "" || (vMetrics.MType != "gauge" && vMetrics.MType != "counter") || len(vMetrics.ID) > 100 {
-					res.WriteHeader(http.StatusBadRequest)
-					return
-				}
-
-				if vMetrics.MType == "gauge" {
-					// контроль длинны карты
-					if _, ok := mgauge.Get(vMetrics.ID); ok != nil && mgauge.Len() > maxlen {
-						res.WriteHeader(http.StatusBadRequest)
-						return
-					}
-
-					if vMetrics.Value == nil {
-
-						vMetrics.Value = new(float64)
-					}
-
-					// Добавляю новую метрику
-					mgauge.Set(vMetrics.ID, *vMetrics.Value)
-					// Выбираю новое значение метрики
-					var ok error
-					if *vMetrics.Value, ok = mgauge.Get(vMetrics.ID); ok != nil {
-						res.WriteHeader(http.StatusBadRequest)
-						return
-					}
-				}
-
-				if vMetrics.MType == "counter" {
-					// контроль длинны карты
-					if _, ok := mmetric.Get(vMetrics.ID); ok != nil && mmetric.Len() > maxlen {
-						res.WriteHeader(http.StatusBadRequest)
-						return
-					}
-					if vMetrics.Delta == nil {
-						vMetrics.Delta = new(int64)
-						//				res.WriteHeader(http.StatusBadRequest)
-						//				return
-					}
-					// Добавляю новую метрику
-					mmetric.Set(vMetrics.ID, *vMetrics.Delta)
-
-					// Выбираю новое значение метрики
-					var ok error
-					if *vMetrics.Delta, ok = mmetric.Get(vMetrics.ID); ok != nil {
-						res.WriteHeader(http.StatusBadRequest)
-						return
-					}
-				}
-		*/
 		jsonData, err := json.Marshal(vMetrics)
 		if err != nil {
 			res.WriteHeader(http.StatusBadRequest)
 			return
-
 		}
+
 		res.Header().Set("Content-Type", "application/json")
-		res.WriteHeader(http.StatusOK)
 		res.Write([]byte(jsonData))
 	}
 }
@@ -175,7 +110,6 @@ func GaugePage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, max
 		// Добавляю новую метрику
 		mgauge.Set(metricName, metricCn)
 
-		res.WriteHeader(http.StatusOK)
 		res.Write(nil)
 	}
 }
@@ -215,7 +149,6 @@ func CounterPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, m
 
 		// Добавляю новую метрику
 		mmetric.Set(metricName, metricCn)
-		res.WriteHeader(http.StatusOK)
 		res.Write(nil)
 	}
 }
@@ -238,7 +171,7 @@ func ErrorPage(res http.ResponseWriter, req *http.Request) {
 
 }
 
-func ListMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter) http.HandlerFunc {
+func ListMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, cfg getparam.ServerParam) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		fmt.Printf("ListMetric page \n")
 
@@ -256,14 +189,12 @@ func ListMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter
 			}
 		}
 		res.Header().Set("Content-Type", "text/html")
-		res.WriteHeader(http.StatusOK)
-		fmt.Printf("ListMetric page %v \n", res.Header())
 
-		io.WriteString(res, strings.Join(body, "\n"))
+		res.Write([]byte(strings.Join(body, "\n")))
 	}
 }
 
-func OneMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter) http.HandlerFunc {
+func OneMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, cfg getparam.ServerParam) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 
 		//		fmt.Printf("OneMetricPage \n")
@@ -288,14 +219,11 @@ func OneMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter)
 			}
 			Val = fmt.Sprintf("%v", retInt)
 		}
-
-		res.WriteHeader(http.StatusOK)
-		io.WriteString(res, fmt.Sprintf("%v", Val))
-
+		res.Write([]byte(Val))
 	}
 }
 
-func OnePostMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter) http.HandlerFunc {
+func OnePostMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, cfg getparam.ServerParam) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 
 		//		fmt.Printf("OneMetricPage \n")
@@ -347,7 +275,6 @@ func OnePostMetricPage(mgauge *storage.GaugeCounter, mmetric *storage.MetricCoun
 
 		}
 		res.Header().Set("Content-Type", "application/json")
-		res.WriteHeader(http.StatusOK)
 		res.Write([]byte(jsonData))
 	}
 }

@@ -1,13 +1,14 @@
 package postupdates
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
 
-	"github.com/greyfox12/Metrics/internal/server/compress"
 	"github.com/greyfox12/Metrics/internal/server/getparam"
+	"github.com/greyfox12/Metrics/internal/server/hash"
 	"github.com/greyfox12/Metrics/internal/server/logmy"
 	"github.com/greyfox12/Metrics/internal/server/storage"
 )
@@ -22,6 +23,7 @@ func PostUpdates(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, m
 		var JSONMetrics []storage.Metrics
 		var LastMess storage.Metrics
 
+		fmt.Printf("req.Header %v\n", req.Header)
 		if req.Method != http.MethodPost {
 			res.WriteHeader(http.StatusMethodNotAllowed)
 			return
@@ -43,17 +45,28 @@ func PostUpdates(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, m
 		defer req.Body.Close()
 
 		bodyS := body[0:n]
+		/*		fmt.Printf("PostUpdates: n =%v, Body: %v \n", n, string(bodyS))
 
-		if req.Header.Get("Content-Encoding") == "gzip" || req.Header.Get("Content-Encoding") == "flate" {
-			fmt.Printf("Header gzip \n")
-			bodyS, err = compress.Decompress(body, req.Header.Get("Content-Encoding"))
-			if err != nil {
-				fmt.Printf("Error ungzip %v\n", err)
+				if req.Header.Get("Content-Encoding") == "gzip" || req.Header.Get("Content-Encoding") == "flate" {
+					fmt.Printf("Header gzip \n")
+					bodyS, err = compress.Decompress(body, req.Header.Get("Content-Encoding"))
+					if err != nil {
+						fmt.Printf("Error ungzip %v\n", err)
+						res.WriteHeader(http.StatusBadRequest)
+						return
+					}
+				}
+		*/
+		//		fmt.Printf("PostUpdates: n =%v, Body: %v \n", n, string(bodyS))
+		if cfg.Key != "" {
+			hash := hex.EncodeToString(hash.MakeHash(bodyS))
+			if req.Header.Get("HashSHA256") != hash {
+				fmt.Printf("Error compare HashSHA256: header=%v  hash=%v\n", req.Header.Get("HashSHA256"), hash)
 				res.WriteHeader(http.StatusBadRequest)
 				return
 			}
+			//		fmt.Printf("compare HashSHA256: header=%v  hash=%v\n", req.Header.Get("HashSHA256"), hash)
 		}
-		fmt.Printf("PostUpdates: n =%v, Body: %v \n", n, string(bodyS))
 
 		err = json.Unmarshal(bodyS, &JSONMetrics)
 		if err != nil {
@@ -84,23 +97,15 @@ func PostUpdates(mgauge *storage.GaugeCounter, mmetric *storage.MetricCounter, m
 		}
 		fmt.Printf("response: %v \n", string(buf))
 
+		// Считаю хеш при отправке ответа
+		if cfg.Key != "" {
+			hashOut := hex.EncodeToString(hash.MakeHash(buf))
+			res.Header().Set("HashSHA256", hashOut)
+		}
+
 		res.Header().Set("Content-Type", "application/json")
-		// Сжимю, если нужно
-		/*		if req.Header.Get("Content-Encoding") == "gzip" || req.Header.Get("Content-Encoding") == "flate" {
-					fmt.Printf("Compress response: \n")
-					buf, err = compress.Compress(buf)
-					if err != nil {
-						fmt.Printf("PostUpdates: Error Compress response: %v \n", err)
-						res.WriteHeader(http.StatusBadRequest)
-						return
 
-					}
-					//		res.Header().Set("Accept-Encoding", "gzip")
-					res.Header().Set("Content-Encoding", "gzip")
-				}
-		*/ //		res.Header().Set("Accept-Encoding", "gzip")
-
-		res.WriteHeader(http.StatusOK)
+		//	res.WriteHeader(http.StatusOK)
 		res.Write(buf)
 	}
 }

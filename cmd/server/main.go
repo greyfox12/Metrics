@@ -18,6 +18,7 @@ import (
 	"github.com/greyfox12/Metrics/internal/server/getparam"
 	"github.com/greyfox12/Metrics/internal/server/getping"
 	"github.com/greyfox12/Metrics/internal/server/handler"
+	"github.com/greyfox12/Metrics/internal/server/hash"
 	"github.com/greyfox12/Metrics/internal/server/logmy"
 	"github.com/greyfox12/Metrics/internal/server/postupdates"
 	"github.com/greyfox12/Metrics/internal/server/storage"
@@ -26,13 +27,19 @@ import (
 const (
 	LenArr           = 10000
 	defServerAdr     = "localhost:8080"
-	defStoreInterval = 10
+	defStoreInterval = 100
 	defStorePath     = "/tmp/metrics-db.json"
 	defRestore       = true
 	defDSN           = "host=localhost user=videos password=videos dbname=postgres sslmode=disable"
 )
 
 func main() {
+
+	serverStart()
+}
+
+// Запускаю сервер
+func serverStart() {
 	var db *sql.DB
 
 	vServerParam := getparam.ServerParam{IPAddress: defServerAdr,
@@ -48,7 +55,6 @@ func main() {
 	if ok := logmy.Initialize("info"); ok != nil {
 		panic(ok)
 	}
-
 	gauge := new(storage.GaugeCounter)
 	gauge.Init(LenArr)
 	metric := new(storage.MetricCounter)
@@ -78,7 +84,8 @@ func main() {
 
 		if vServerParam.Restore {
 			if err := dbstore.LoadMetric(gauge, metric, db); err != nil {
-				fmt.Printf("%v\n", err)
+				logmy.OutLog(err)
+				//				fmt.Printf("%v\n", err)
 			}
 		}
 	}
@@ -110,15 +117,15 @@ func main() {
 
 	// определяем хендлер
 	r.Route("/", func(r chi.Router) {
-		r.Get("/", logmy.RequestLogger(handler.ListMetricPage(gauge, metric)))
-		r.Get("/value/gauge/{metricName}", logmy.RequestLogger(handler.OneMetricPage(gauge, metric)))
-		r.Get("/value/counter/{metricName}", logmy.RequestLogger(handler.OneMetricPage(gauge, metric)))
+		r.Get("/", logmy.RequestLogger(handler.ListMetricPage(gauge, metric, vServerParam)))
+		r.Get("/value/gauge/{metricName}", logmy.RequestLogger(handler.OneMetricPage(gauge, metric, vServerParam)))
+		r.Get("/value/counter/{metricName}", logmy.RequestLogger(handler.OneMetricPage(gauge, metric, vServerParam)))
 		r.Get("/ping", logmy.RequestLogger(getping.GetPing(db)))
 		r.Get("/*", logmy.RequestLogger(handler.ErrorPage))
 
 		r.Post("/updates", logmy.RequestLogger(postupdates.PostUpdates(gauge, metric, LenArr, vServerParam)))
 		r.Post("/update", logmy.RequestLogger(handler.PostPage(gauge, metric, LenArr, vServerParam)))
-		r.Post("/value", logmy.RequestLogger(handler.OnePostMetricPage(gauge, metric)))
+		r.Post("/value", logmy.RequestLogger(handler.OnePostMetricPage(gauge, metric, vServerParam)))
 		r.Post("/update/gauge/{metricName}/{metricVal}", logmy.RequestLogger(handler.GaugePage(gauge, metric, LenArr, vServerParam)))
 		r.Post("/update/counter/{metricName}/{metricVal}", logmy.RequestLogger(handler.CounterPage(gauge, metric, LenArr, vServerParam)))
 
@@ -127,5 +134,7 @@ func main() {
 	})
 
 	fmt.Printf("Start Server %v\n", vServerParam.IPAddress)
-	log.Fatal(http.ListenAndServe(vServerParam.IPAddress, compress.GzipHandle(r)))
+
+	hd := compress.GzipHandle(compress.GzipRead(hash.HashHandle(hash.HashWriteHandle(r, vServerParam), vServerParam)))
+	log.Fatal(http.ListenAndServe(vServerParam.IPAddress, hd))
 }

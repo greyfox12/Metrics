@@ -91,9 +91,8 @@ func Decompress(data []byte, typCompress string) ([]byte, error) {
 func GzipHandle(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// проверяем, что клиент поддерживает gzip-сжатие
-		// это упрощённый пример. В реальном приложении следует проверять все
-		// значения r.Header.Values("Accept-Encoding") и разбирать строку
-		// на составные части, чтобы избежать неожиданных результатов
+
+		fmt.Printf("GZIP ENTER\n")
 
 		headerCode := strings.Split(r.Header.Get("Accept-Encoding"), ",")
 		for i := range headerCode {
@@ -137,6 +136,26 @@ func GzipHandle(next http.Handler) http.Handler {
 			return
 
 		}
+		// если gzip не поддерживается, передаём управление
+		// дальше без изменений
+		next.ServeHTTP(w, r)
+	})
+}
+
+func GzipRead(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// проверяем, что клиент поддерживает gzip-сжатие
+
+		fmt.Printf("GZIP Read ENTER\n")
+
+		if r.Header.Get("Content-Encoding") == "gzip" || r.Header.Get("Content-Encoding") == "flate" {
+			fmt.Printf("GzipRead Header gzip \n")
+			r.Body = flate.NewReader(r.Body)
+			next.ServeHTTP(w, r)
+
+			return
+		}
+
 		// если gzip не поддерживается, передаём управление
 		// дальше без изменений
 		next.ServeHTTP(w, r)

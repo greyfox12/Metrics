@@ -6,21 +6,23 @@ import (
 	"net/http/httptest"
 
 	"testing"
+
+	"github.com/greyfox12/Metrics/internal/agent/getparam"
 )
 
 func TestPostCounter(t *testing.T) {
-	var (
-		ListCounter map[int]CounterMetric
-		ListGauge   map[int]GaugeMetric
-	)
-	ListGauge = make(map[int]GaugeMetric)
-	ListCounter = make(map[int]CounterMetric)
 
-	ListGauge[1] = GaugeMetric{"Alloc", Gauge(5.5)}
-	ListGauge[2] = GaugeMetric{"BuckHashSys", Gauge(6)}
+	List := make(map[int]CollectMetr)
 
-	ListCounter[1] = CounterMetric{"PollCount", Counter(100)}
+	List[1] = CollectMetr{ID: "Alloc", MType: "gauge", Value: 5.5}
+	List[2] = CollectMetr{ID: "BuckHashSys", MType: "gauge", Value: 6}
+
+	List[3] = CollectMetr{ID: "PollCount", MType: "counter", Value: 100}
 	updateTyp := "update"
+
+	jobs := make(chan map[int]CollectMetr, 1)
+	jobs <- List
+	results := make(chan error, 1)
 
 	svr := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		//		fmt.Fprintf("NewServer w=%v expected=%v\n", w, expected)
@@ -28,8 +30,9 @@ func TestPostCounter(t *testing.T) {
 
 	defer svr.Close()
 	fmt.Printf("svr.URL=%s\n", svr.URL)
-	c := NewClient(svr.URL)
-	err := c.PostCounter(ListGauge, ListCounter, updateTyp)
+	c := NewClient(getparam.TConfig{Address: svr.URL})
+	go c.PostCounter(jobs, results, updateTyp)
+	err := <-results
 	if err != nil {
 		t.Errorf("expected err to be nil got %v", err)
 	}

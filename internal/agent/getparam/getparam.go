@@ -20,6 +20,8 @@ type TConfig struct {
 	ReportInterval int
 	PollInterval   int
 	PostUpdates    bool
+	Key            string
+	RateLimit      int
 }
 
 type NetAddress string
@@ -64,6 +66,18 @@ func Param() TConfig {
 		}
 	}
 
+	if res, ok := os.LookupEnv("KEY"); ok {
+		cfg.Key = res
+	}
+
+	if tmp, ok := os.LookupEnv("RATE_LIMIT"); ok {
+		if res, err := strconv.Atoi(tmp); err == nil {
+			cfg.RateLimit = res
+		} else {
+			panic(fmt.Sprintf("Неверное значение переменной окружения RATE_LIMIT = %v", res))
+		}
+	}
+
 	if cfg.PollInterval == 0 {
 		cfg.PollInterval = DefPollInterval
 	}
@@ -80,12 +94,17 @@ func Param() TConfig {
 	flag.IntVar(&cfg.PollInterval, "p", cfg.PollInterval, "Pool interval sec.")
 	flag.IntVar(&cfg.ReportInterval, "r", cfg.ReportInterval, "Report interval sec.")
 	flag.BoolVar(&cfg.PostUpdates, "u", DefPostUpdates, "Updates mode post")
+	flag.StringVar(&cfg.Key, "k", "", "Key")
+	flag.IntVar(&cfg.RateLimit, "l", cfg.RateLimit, "Rate Limit jobs")
 	flag.Parse()
 
 	if !strings.HasPrefix(cfg.Address, "http://") {
 		cfg.Address = "http://" + cfg.Address
 	}
 
-	//	fmt.Printf("cfg.Address=%v\n", cfg.Address)
+	if cfg.RateLimit == 0 {
+		cfg.RateLimit = 1
+	}
+
 	return cfg
 }
